@@ -111,15 +111,20 @@ not taken from a paper.
 
 **How we measure the gap.** For each trace, the network outputs a probability for each of the
 256 possible secrets. We score it with its [cross entropy](#cross-entropy): how surprised it is,
-on average, by the true secret, in bits. A network that only guesses is surprised by 8 bits;
-whatever it has learned lowers that number. The drop is its
-**[perceived information](#perceived-information) (PI)**: the bits about the secret the network
-actually extracted, or 8 bits minus its cross entropy.
+on average, by the true secret, in bits. A network that only guesses has a cross entropy of
+8 bits; whatever it learns lowers that number. The drop is its
+**[perceived information](#perceived-information) (PI)**, the bits about the secret it actually
+extracted:
+
+`PI = 8 bits - cross entropy`
 
 PI can never go above the ceiling from [Part 1](#1-is-there-less-information), so we report the
-**gap**: the ceiling minus PI. A gap of 0 would be a perfect attacker; a bigger gap means the
-network left information unused. Example: at σ = 0.5 the XOR ceiling is 0.144 bits, so an XOR
-network with a gap of 0.026 bits has extracted about 0.118 bits, about 82% of what is possible.
+**gap**, the information the network left unused:
+
+`gap = ceiling - PI`
+
+A gap of 0 would be a perfect attacker. Example: at σ = 0.5 the XOR ceiling is 0.144 bits, so an
+XOR network with a gap of 0.026 bits has extracted about 0.118 bits, about 82% of what is possible.
 
 **Files.**
 - [train_mlp.py](experiments/train_mlp.py) – simulates traces, trains the network, measures PI.

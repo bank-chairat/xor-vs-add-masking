@@ -55,20 +55,43 @@ supported by a paper listed there.
 
 ## Related work
 
-Papers cited in this write-up. "Read" says how much of each we actually read.
+Prouff, Strullu, Benadjila, Cagli, and Dumas (2018), "Study of Deep Learning Techniques for
+Side-Channel Analysis and Introduction to ASCAD Database" ([ePrint 2018/053](https://eprint.iacr.org/2018/053)).
+Applies multilayer perceptrons and convolutional networks to a masked AES implementation and
+releases an open dataset (ASCAD). Cited here as background for why training a neural network on
+masked leakage is a realistic attack to study.
 
-**Masking and its information**
-- [Prouff & Rivain 2013](https://www.iacr.org/archive/eurocrypt2013/78810139/78810139.pdf), "Masking against Side-Channel Attacks: A Formal Security Proof" (EUROCRYPT). Standard reference on why masking works. *Read: not read; cited for the definition only.*
-- [Masure, Meaux, Moos & Standaert 2023](https://eprint.iacr.org/2022/863), "Effective and Efficient Masking with Low Noise using Small-Mersenne-Prime Ciphers" (EUROCRYPT). Computes the same information ceiling for Boolean and arithmetic masking and states the parity identity; same direction as our Chapter 1. *Read: pages 1–10 of 32.*
-- [Hiltenbrand, Eynard & Poussier 2025](https://eprint.iacr.org/2025/604), "On the success rate of simple side-channel attacks against masking with unlimited attack traces" (CASCADE). Same measurement model as ours; notes that more information does not mean easier attacks in their setting. *Read: in full.*
+Prouff and Rivain (2013), "Masking against Side-Channel Attacks: A Formal Security Proof"
+([EUROCRYPT 2013](https://www.iacr.org/archive/eurocrypt2013/78810139/78810139.pdf)). A standard
+reference on masking as a countermeasure, giving a formal security proof for masked
+implementations. Cited for the definition of masking used throughout.
 
-**Leakage model**
-- [Brier, Clavier & Olivier 2004](https://www.iacr.org/archive/ches2004/31560016/31560016.pdf), "Correlation Power Analysis with a Leakage Model" (CHES). Hamming-weight and Hamming-distance models fit some real 8-bit chips. *Read: summary of the full text.*
-- [Cheng, Liu, Guilley & Rioul 2021](https://arxiv.org/abs/2105.07436), "Attacking Masked Cryptographic Implementations: Information-Theoretic Bounds". Uses the same kind of model (Hamming weight plus Gaussian noise) for Boolean masking. *Read: summary of the full text.*
+Brier, Clavier, and Olivier (2004), "Correlation Power Analysis with a Leakage Model"
+([CHES 2004](https://www.iacr.org/archive/ches2004/31560016/31560016.pdf)). Proposes the Hamming
+distance leakage model (Hamming weight when the reference state is zero) and reports that it fits
+power measurements of various 8-bit chips well, and a 32-bit device less well. Cited as evidence
+that Hamming-weight leakage is a reasonable, though simplified, model.
 
-**Deep-learning side-channel attacks**
-- [Prouff, Strullu, Benadjila, Cagli & Dumas 2018](https://eprint.iacr.org/2018/053), "Study of Deep Learning Techniques for Side-Channel Analysis and Introduction to ASCAD Database". MLPs and CNNs attacking a masked AES implementation. *Read: abstract.*
+Cheng, Liu, Guilley, and Rioul (2021), "Attacking Masked Cryptographic Implementations:
+Information-Theoretic Bounds" ([arXiv:2105.07436](https://arxiv.org/abs/2105.07436)). Analyses
+Boolean masking with Hamming-weight leakage plus Gaussian noise, the same kind of model as ours,
+and derives information-theoretic bounds on attacking it. Boolean masking only, so it does not
+compare the two maskings.
 
+Masure, Meaux, Moos, and Standaert (2023), "Effective and Efficient Masking with Low Noise using
+Small-Mersenne-Prime Ciphers" ([ePrint 2022/863](https://eprint.iacr.org/2022/863), EUROCRYPT 2023).
+Computes the mutual information between a secret and the Hamming-weight leakage of its shares for
+Boolean and arithmetic masking, and states the parity identity that explains part of Boolean
+masking's leakage. Our Chapter 1 re-derives the same direction (Boolean leaks more) for two
+shares, which we used as a check on our code rather than as a new finding.
+
+Hiltenbrand, Eynard, and Poussier (2025), "On the success rate of simple side-channel attacks
+against masking with unlimited attack traces" ([ePrint 2025/604](https://eprint.iacr.org/2025/604),
+CASCADE 2025). Uses the same measurement model as ours and confirms that two-share arithmetic
+masking carries less mutual information than Boolean masking, while showing that in their setting
+arithmetic masking can still be easier to attack with unlimited traces. A reminder that more
+information does not by itself mean an easier attack; this project measures information and
+learning, not attack success.
 ## Glossary
 
 Short definitions of the technical terms used above. Each links to a longer explanation.

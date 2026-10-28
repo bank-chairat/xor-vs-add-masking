@@ -1,0 +1,18 @@
+a30_score.py -> identical to a30_scores.txt: True
+a31_score.py a31 2500 -> identical to a31_scores.txt: True
+a31_score.py a31b 6000 -> identical to a31b_scores.txt: True
+a31_score.py a31c 6000 -> identical to a31c_scores.txt: True
+a32_score.py -> identical to a32_scores.txt: True
+a33_score.py -> identical to a33_scores.txt: True
+a31_score.py a34 2500 -> identical to a34_scores.txt: True
+A-32 xor hard means at 100/600/4000: 0.0935 / 0.0349 / 0.0158
+A-32 xor soft means at 100/600/4000: 0.0245 / 0.0013 / 0.0003
+A-32 add hard means at 100/600/4000: 0.1060 / 0.0314 / 0.0134
+A-35 1.0 0 1000 A 0.02662 rel L1/L2/L3/out 0.2259 1.0597 0.5929 1.5378
+A-35 1.0 0 2000 A 0.01861 rel L1/L2/L3/out 0.3173 1.3541 0.7057 1.9847
+A-35 1.0 1 1000 A 0.03351 rel L1/L2/L3/out 0.2336 1.0795 0.5531 1.5266
+A-35 1.0 1 2000 A 0.02253 rel L1/L2/L3/out 0.3179 1.3637 0.7078 2.0675
+A-35 16.0 0 1000 A 0.03537 rel L1/L2/L3/out 0.1325 0.6677 0.3711 0.1369
+A-35 16.0 0 2000 A 0.03503 rel L1/L2/L3/out 0.1862 0.8603 0.4130 0.1806
+A-35 16.0 1 1000 A 0.03516 rel L1/L2/L3/out 0.1338 0.6058 0.3822 0.1615
+A-35 16.0 1 2000 A 0.03468 rel L1/L2/L3/out 0.1865 0.7727 0.4208 0.2081

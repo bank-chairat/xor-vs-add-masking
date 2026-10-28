@@ -1,0 +1,4 @@
+A-43-ln-xor-sig0.5-s2500-sched1000000000-fixed-seed0 A=0.0312 B=0.0051 C=0.0054 total=0.0417 (727s)
+A-43-ln-xor-sig0.5-s2500-sched1000000000-fixed-seed1 A=0.0276 B=0.0057 C=0.0044 total=0.0376 (622s)
+A-43-ln-xor-sig0.5-s2500-sched1000000000-fixed-seed2 A=0.0276 B=0.0091 C=0.0053 total=0.0420 (301s)
+A-43-ln-xor-sig0.5-s2500-sched1000000000-fixed-seed3 A=0.0272 B=0.0053 C=0.0062 total=0.0388 (189s)

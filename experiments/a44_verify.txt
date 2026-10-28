@@ -1,0 +1,4 @@
+a31_score.py a39 2500 -> matches first 2 lines of a39_scores.txt: True
+a40_score.py -> matches first 4 lines of a40_scores.txt: True
+a41b_score.py -> matches first 5 lines of a41b_scores.txt: True
+a31_score.py a43 2500 -> matches first 2 lines of a43_scores.txt: True

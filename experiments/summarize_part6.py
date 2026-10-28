@@ -22,7 +22,7 @@ run("Same with exact-posterior labels (A-40)", ["a40_score.py"])
 
 wb = {k: float(re.search(rf"{k}: MI estimate ([0-9.]+)", open("a32_info.txt").read()).group(1)) for k in ("xor", "add")}
 tr = {k: float(re.search(rf"{k} with transition reading: I = ([0-9.]+)", open("a37_info.txt").read()).group(1)) for k in ("xor", "add")}
-models = ["Hamming weight\n(Parts 1-5)", "weighted bits\n(A-32)", "Hamming weight +\ntransition leak (A-37)"]
+models = ["Hamming weight\n(Parts 1-5)", "weighted bits\n(Exp. 32)", "Hamming weight +\ntransition leak (Exp. 37)"]
 x = np.arange(3)
 fig, ax = plt.subplots(figsize=(6.4, 4))
 for i, (k, name, color) in enumerate([("xor", "XOR", "#c0392b"), ("add", "Addition mod 256", "#2471a3")]):

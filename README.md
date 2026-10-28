@@ -21,24 +21,23 @@ information from 0.144 to 1.63 bits. Everything here is simulated; nothing is me
 
 ## Contents
 
-The parts follow the order the work was done. Each says what we asked, where the idea came from, which
-files answer it, what we found, and what it led to next.
-
 - [Motivation and question](#motivation-and-question)
-- [1. Is there less information?](#1-is-there-less-information) The information ceiling
-- [2. Do trained networks reach the ceiling?](#2-do-trained-networks-reach-the-ceiling) XOR needs more training
-- [3. Where does XOR fall short? The parity clue](#3-where-does-xor-fall-short-the-parity-clue) A long flat start on parity
-- [4. What causes the flat start?](#4-what-causes-the-flat-start) Batch size, label noise and a rule of thumb
-- [5. Testing the cause directly](#5-testing-the-cause-directly) Label noise causes it; a sine layer removes it
-- [6. Does it hold under other leakage models?](#6-does-it-hold-under-other-leakage-models) Weighted bits and a transition leak
-- [7. Link to the adder project, checks, and open questions](#7-link-to-the-adder-project-checks-and-open-questions)
+- [1. Is there less information?](#1-is-there-less-information) – the information ceiling
+- [2. Do trained networks reach the ceiling?](#2-do-trained-networks-reach-the-ceiling) – XOR needs more training
+- [3. Where does XOR fall short? The parity clue](#3-where-does-xor-fall-short-the-parity-clue) – a long flat start on parity
+- [4. What causes the flat start?](#4-what-causes-the-flat-start) – batch size, label noise and a rule of thumb
+- [5. Testing the cause directly](#5-testing-the-cause-directly) – label noise causes it; a sine layer removes it
+- [6. Does it hold under other leakage models?](#6-does-it-hold-under-other-leakage-models) – weighted bits and a transition leak
+- [7. Link to the adder project, checks, and open questions](#7-link-to-the-adder-project-checks-and-open-questions) – a LayerNorm test, how we checked, what is left
 - [Related work](#related-work) and [Glossary](#glossary)
 - Full lab notebook: [PROGRESS.md](PROGRESS.md)
-  
+
+Experiment numbers match the notebook: Experiment 30 is entry A-30 in PROGRESS.md, and its files
+start with `a30`.
+
 **Scope, up front:** everything here is simulated. The leakage model is mostly one simple
 model (Hamming weight plus Gaussian noise), the networks are small MLPs, and nothing is
 measured on a real device. Results are claims about this model only.
-
 
 ## Motivation and question
 
@@ -80,7 +79,6 @@ by a paper listed in [Related work](#related-work).
 
 **Environment:** Python 3.13, CPU only, versions pinned in
 [requirements.txt](requirements.txt).
-
 
 ## 1. Is there less information?
 
@@ -128,7 +126,6 @@ and read it there afterwards.
 **What it raised.** If XOR has more information, then any difficulty a network has with XOR is
 about *learning*. Next: do trained networks actually reach these limits?
 
-
 ## 2. Do trained networks reach the ceiling?
 
 **Question.** [Part 1](#1-is-there-less-information) says XOR leaks more. So does a trained network actually get close to
@@ -148,12 +145,12 @@ on average, by the true secret, in bits. A network that only guesses has a cross
 **[perceived information](#perceived-information) (PI)**, the bits about the secret it actually
 extracted:
 
-`PI = 8 bits - cross entropy`
+`PI = 8 bits − cross entropy`
 
 PI can never go above the ceiling from [Part 1](#1-is-there-less-information), so we report the
 **gap**, the information the network left unused:
 
-`gap = ceiling - PI`
+`gap = ceiling − PI`
 
 A gap of 0 would be a perfect attacker. Example: at σ = 0.5 the XOR ceiling is 0.144 bits, so an
 XOR network with a gap of 0.026 bits has extracted about 0.118 bits, about 82% of what is possible.
@@ -206,7 +203,7 @@ At 4,000 steps every addition run has a smaller gap than every XOR run (worst ad
 best XOR 0.0212), and XOR's runs vary about 13 times more.
 At 16,000 steps the gap is gone: addition was already at its level by 4,000 steps, while XOR
 needed four times longer to get there. At 64,000 steps both got *worse*, a puzzle we come back
-to in Part 4.
+to in [Part 4](#4-what-causes-the-flat-start).
 
 **Result 3: what the 4,000-step gap depends on (Experiments 4–8, 3–4 seeds each).**
 - [Learning rate](#learning-rate): no value from 0.0005 to 0.008 closes it.
@@ -216,7 +213,7 @@ to in Part 4.
 - Noise: at 16,000 steps XOR is never clearly further from its ceiling than addition (about equal at
   σ = 0.5 and 0.75), and at low noise (σ = 0.25) it is clearly closer (0.013 vs 0.030).
 - Noise-free data: trained on the exact probabilities, all 20 XOR networks learn the parity
-  clue from Part 1 almost perfectly (0.999 of their probability on answers with the right parity).
+  clue from [Part 1](#1-is-there-less-information) almost perfectly (0.999 of their probability on answers with the right parity).
 
 **What it answered.** XOR isn't harder because the network can't reach its limit. Given enough
 steps, depth or data, it gets there. XOR simply needs *more training* to get as close as addition.
@@ -367,7 +364,7 @@ python3 summarize_part4.py     # seconds, from saved results
 ```
 
 **Result 1: a stronger signal shortens it, but doesn't remove it (Experiment 14, 4 seeds).** With less
-noise the parity clue is much stronger, and the flat start shrinks from about 1,100 steps at σ = 0.5 (the Part 3 setting) to
+noise the parity clue is much stronger, and the flat start shrinks from about 1,100 steps at σ = 0.5 (the [Part 3](#3-where-does-xor-fall-short-the-parity-clue) setting) to
 about 550 at σ = 0.35 and 300 at σ = 0.25. But even at σ = 0.25, after 4,000 steps XOR still has three
 times addition's gap. Signal strength matters, but it isn't the whole story.
 
@@ -414,7 +411,7 @@ still a correlation-based case. The direct causal test is in [Part 5](#5-testing
 combination of learning rate and batch size (such as their ratio) describes the flat start
 (Experiment 19). So we fitted a small formula instead:
 
-`ln T = 17.23 + 1.66 ln(lr) + 0.144 ln(lr)² − 0.772 ln(B)`
+`ln T = 17.227 + 1.660 ln(lr) + 0.144 ln(lr)² − 0.772 ln(B)`
 
 where T is the flat start, lr the learning rate, B the batch size and ln the natural log.
 
@@ -477,7 +474,7 @@ Two direct tests: (1) keep the clean training signal and add back *only* the noi
 return? (2) If the signal is weak because a normal network has to build the parity zigzag out of plain
 pieces, does a network that can oscillate from the start skip the wait?
 
-**Where the ideas came from.** Test 1 is our own design, the missing step after Parts 3–4. Test 2 follows
+**Where the ideas came from.** Test 1 is our own design, the missing step after [Parts 3](#3-where-does-xor-fall-short-the-parity-clue)–[4](#4-what-causes-the-flat-start). Test 2 follows
 our [Part 3](#3-where-does-xor-fall-short-the-parity-clue) finding that any oscillating input helps, plus [Ziyin et al. 2020](https://arxiv.org/abs/2006.08195),
 who argue that ordinary networks handle periodic patterns poorly and propose periodic activations. We also
 checked whether the result depends on the optimizer, and how the network's starting weight scale matters,
@@ -503,7 +500,7 @@ WS=4 SEEDS="0 1 2 3" python3 a34_periodic.py a34      # sine layer
 ACT=relu WS=4 SEEDS="0 1 2 3" python3 a34_periodic.py a39
 ```
 
-**Result 1: adding only the noise brings the flat start back (A-30, 4 seeds).** We trained on the clean
+**Result 1: adding only the noise brings the flat start back (Experiment 30, 4 seeds).** We trained on the clean
 exact-posterior gradient and added a zero-average noise term with exactly the statistics of one-hot labels.
 The average training signal is unchanged; only the noise is new. The flat start comes back in full, and a
 third of the noise gives a short one (Table 8). This is the causal test: in this setting, label noise in
@@ -519,10 +516,10 @@ hand-written Adam of Experiment 24 so the noise can be added exactly.*
 | clean labels + full label noise | 1,450 | 0.0101 |
 | ordinary one-hot labels | 1,150 | 0.0105 |
 
-**Result 2: it isn't specific to Adam (A-33, 4 seeds).** With momentum SGD instead of Adam, one-hot labels
+**Result 2: it isn't specific to Adam (Experiment 33, 4 seeds).** With momentum SGD instead of Adam, one-hot labels
 still delay the parity escape 3.5 times compared with clean labels (3,650 vs 1,050 steps).
 
-**Result 3: a sine first layer removes the flat start (A-34, A-39, A-41b, 4 seeds each).**
+**Result 3: a sine first layer removes the flat start (Experiments 34, 39 and 41b, 4 seeds each).**
 
 ![Parity part of the gap during training, ReLU vs. sine first layer](experiments/results/part5_sine_layer.png)
 
@@ -535,8 +532,8 @@ falls at once. The ReLU control with the same ×4 weights (dark red) stays stuck
 | First layer | σ = 0.5 | σ = 0.6 (weaker signal) |
 |---|---|---|
 | ReLU, default | 1,250 | 2,200 |
-| ReLU, weights ×4 (control) | still flat at 2,500 in 3 of 4 seeds | |
-| sine, default weights | 750 | |
+| ReLU, weights ×4 (control) | still flat at 2,500 in 3 of 4 seeds | not run |
+| sine, default weights | 750 | not run |
 | sine, weights ×4 | 100 | 200 |
 
 The sine layer works even though the labels are just as noisy, so the noise only matters because the
@@ -549,9 +546,9 @@ ReLU network's parity signal starts out weak. Three checks make this solid:
   flat start roughly doubles while the sine network still escapes almost at once.
 
 One side effect: the sine network memorizes the fixed training set a little more. With a fresh batch at
-every step (A-42) that disappears, and its gap halves to about 0.010 bits.
+every step (Experiment 42) that disappears, and its gap halves to about 0.010 bits.
 
-**Result 4: a larger starting scale makes it worse (A-28 to A-31c, A-35).** Unlike in our adder project,
+**Result 4: a larger starting scale makes it worse (Experiments 28–31c and 35).** Unlike in our adder project,
 multiplying all starting weights by 2 left every seed still flat after 2,500 steps, and smaller scales
 were also slower (×0.5: 1,550 steps, ×0.25: 1,950). The default scale was the fastest we tried. The delay
 follows the network's overall output scale: making only the output layer 16 times larger gives a 4,200-step
@@ -589,7 +586,7 @@ applied to the two shares.
 - [a37_hd_info.py](experiments/a37_hd_info.py) – transition leak: the information ceiling. Output in
   [a37_info.txt](experiments/a37_info.txt).
 - [a38_transition.py](experiments/a38_transition.py) – training under the transition leak, with one-hot
-  labels (A-38) or exact-posterior labels (`LABELS=soft`, A-40). Scored by [a38_score.py](experiments/a38_score.py)
+  labels (Experiment 38) or exact-posterior labels (`LABELS=soft`, Experiment 40). Scored by [a38_score.py](experiments/a38_score.py)
   and [a40_score.py](experiments/a40_score.py). Results in [a38/](experiments/a38), [a40/](experiments/a40).
 - [summarize_part6.py](experiments/summarize_part6.py) – prints every number below and draws Figure 5.
 
@@ -605,27 +602,27 @@ KIND=xor SEEDS="0 1 2 3" python3 a38_transition.py a38   # rerun training (about
 *Figure 5. Information about the 8-bit secret from one trace (σ = 0.5) under the three leakage models.
 Log scale. Values for the two new models are Monte Carlo estimates (standard error about 0.001 to 0.003).*
 
-**Result 1: with weighted bits, XOR's advantage and the flat start both disappear (A-32, 4 seeds).**
+**Result 1: with weighted bits, XOR's advantage and the flat start both disappear (Experiment 32, 4 seeds).**
 The two maskings now leak almost the same (0.155 vs 0.148 bits; XOR still slightly more), and XOR networks
 start improving at once: their gap falls by 61–65% between steps 100 and 600 in every seed. We predicted a
 flat start and were wrong. With unequal bit weights, the secret is no longer hidden behind one weak parity
 clue, so there is nothing special to wait for. One thing carries over: one-hot labels still cost most of the
 remaining gap (0.0158 bits vs 0.0003 with exact-posterior labels after 4,000 steps).
 
-**Result 2: a transition leak breaks XOR masking (A-37).** For XOR, the Hamming distance between the two
+**Result 2: a transition leak breaks XOR masking (Experiment 37).** For XOR, the Hamming distance between the two
 shares is the Hamming weight of `share1 XOR share2 = s`, the secret itself: the mask cancels out. So
 the attacker gets a direct reading of the secret's weight, and the information jumps about elevenfold.
 Addition also leaks much more (about sevenfold), but its increase is about half of XOR's (Table 10).
 
 *Table 10. Information about the secret (bits, σ = 0.5) with and without the transition leak. "Shares
-only" is the exact value from Part 1; the transition-leak values are Monte Carlo estimates.*
+only" is the exact value from [Part 1](#1-is-there-less-information); the transition-leak values are Monte Carlo estimates.*
 
 | Masking | Shares only | Plus transition leak |
 |---|---|---|
 | XOR | 0.144 | 1.63 |
 | Addition | 0.108 | 0.81 |
 
-**Result 3: learning under the transition leak (A-38, A-40, 4 seeds).** With a direct reading of the
+**Result 3: learning under the transition leak (Experiments 38 and 40, 4 seeds).** With a direct reading of the
 secret's weight available, XOR networks have no flat start (in 3 of 4 seeds the gap halves
 between steps 100 and 600), and both maskings' networks capture 95–97% of the available information. We
 predicted XOR would end *closer* to its limit than addition, and it didn't: it ended further away (0.049
@@ -643,7 +640,7 @@ one part of its task? And how sure are we of all the numbers above?
 
 ## 7. Link to the adder project, checks, and open questions
 
-**A different cause than the adder's delay (A-43, 4 seeds).** Our companion project studies a network
+**A different cause than the adder's delay (Experiment 43, 4 seeds).** Our companion project studies a network
 learning binary addition, where some output bits are also learned very late. There, adding
 [LayerNorm](#layernorm) to the hidden layers removes the delay. If XOR's flat start had the same cause,
 LayerNorm should help here too. It doesn't: the flat start gets *longer* (2,050 steps vs 1,250). So the two
@@ -655,10 +652,10 @@ results in [a43/](experiments/a43).
 **How we checked the work.**
 - **Predictions first.** Before each experiment we wrote down what we expected and what would change our
   mind, then marked each prediction as held or missed. Several were wrong, and the README says so where
-  they were (for example the "sudden drop" in Part 3, the half-frequency input in Part 3, and the flat
-  start under weighted bits in Part 6). The full record is in [PROGRESS.md](PROGRESS.md).
+  they were (for example the "sudden drop" and the half-frequency input in [Part 3](#3-where-does-xor-fall-short-the-parity-clue), and the flat
+  start under weighted bits in [Part 6](#6-does-it-hold-under-other-leakage-models)). The full record is in [PROGRESS.md](PROGRESS.md).
 - **Every number recomputed.** [a36_verify.py](experiments/a36_verify.py) and
-  [a44_verify.py](experiments/a44_verify.py) rerun the scoring scripts of Parts 5–7 on the raw result files
+  [a44_verify.py](experiments/a44_verify.py) rerun the scoring scripts of [Parts 5](#5-testing-the-cause-directly)–7 on the raw result files
   and compare them with the saved scores. Everything matched apart from small rounding fixes, and each
   part's summary script rebuilds that part's tables and figures from the saved results.
 - **Reruns are identical.** Repeating a run with the same seed reproduces it exactly on the same machine and
@@ -667,13 +664,13 @@ results in [a43/](experiments/a43).
   different machines or library versions, small numerical differences are possible.
 
 **Mistakes we caught and kept on record.**
-- One planned experiment (A-41, the sine layer at σ = 0.75) was stopped after its first run: at that noise
+- One planned experiment (Experiment 41, the sine layer at σ = 0.75) was stopped after its first run: at that noise
   level there is almost no parity information to learn (0.0006 bits), which we should have checked first.
-  It was replaced by the σ = 0.6 test in Part 5, and the aborted run is kept in
+  It was replaced by the σ = 0.6 test in [Part 5](#5-testing-the-cause-directly), and the aborted run is kept in
   [a41_aborted_sig0.75/](experiments/a41_aborted_sig0.75).
-- The first transition-leak calculation (Part 6) used `s - m` for the second addition share instead of the
+- The first transition-leak calculation ([Part 6](#6-does-it-hold-under-other-leakage-models)) used `s - m` for the second addition share instead of the
   project's `s + m`. Rerunning with `s + m` gave the same values within sampling error.
-- One spread in the notebook's Part 2 table was mistyped (0.0022 instead of 0.0016); it is corrected in place.
+- One spread in the notebook's [Part 2](#2-do-trained-networks-reach-the-ceiling) table was mistyped (0.0022 instead of 0.0016); it is corrected in place.
 
 **Limits.** Everything is simulated, mostly with one leakage model, two shares and two readings per trace.
 The networks are small MLPs trained on CPU, usually with 4 seeds per setting. Nothing was measured on a real
@@ -681,12 +678,12 @@ device, and the results say nothing about real attacks on real hardware.
 
 **Open questions.**
 - Why the ReLU network's parity signal is weak in the first place: spectral bias, a plateau in training, or
-  something else. Part 5 shows a sine layer avoids it, not why ReLU suffers.
+  something else. [Part 5](#5-testing-the-cause-directly) shows a sine layer avoids it, not why ReLU suffers.
 - Why LayerNorm and both smaller and larger starting scales *lengthen* XOR's flat start.
 - What causes the small gap that remains under the transition leak even with clean labels (0.006–0.014 bits).
 - What explains the 0.150 bits of XOR's noiseless 1.150 beyond the parity bit.
 - Whether any of this holds for real traces, more than two shares, or other network types such as CNNs.
-  
+
 ## Related work
 
 Prouff, Strullu, Benadjila, Cagli, and Dumas (2018), "Study of Deep Learning Techniques for
@@ -716,7 +713,7 @@ Masure, Meaux, Moos, and Standaert (2023), "Effective and Efficient Masking with
 Small-Mersenne-Prime Ciphers" ([ePrint 2022/863](https://eprint.iacr.org/2022/863), EUROCRYPT 2023).
 Computes the mutual information between a secret and the Hamming-weight leakage of its shares for
 Boolean and arithmetic masking, and states the parity identity that explains part of Boolean
-masking's leakage. Our Part 1 re-derives the same direction (Boolean leaks more) for two
+masking's leakage. Our [Part 1](#1-is-there-less-information) re-derives the same direction (Boolean leaks more) for two
 shares, which we used as a check on our code rather than as a new finding.
 
 Hiltenbrand, Eynard, and Poussier (2025), "On the success rate of simple side-channel attacks
@@ -737,12 +734,12 @@ Bronchain, Hendrickx, Massart, Olshevsky, and Standaert (2019), "Leakage Certifi
 Bounding Model Errors in Side-Channel Security Evaluations" ([ePrint 2019/132](https://eprint.iacr.org/2019/132),
 CRYPTO 2019). Defines perceived information as the information an estimated model can extract and
 shows it cannot exceed the true mutual information when the secret is uniform. Cited for why our
-networks can never beat the ceiling from Part 1.
+networks can never beat the ceiling from [Part 1](#1-is-there-less-information).
 
 Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht, Bengio, and Courville (2019), "On the Spectral
 Bias of Neural Networks" ([arXiv:1806.08734](https://arxiv.org/abs/1806.08734), ICML 2019). Reports
 that ReLU networks learn the low-frequency (smooth) parts of a function first and the high-frequency
-(zigzag) parts later. A possible general reason why the parity zigzag in Part 3 is learned late; the
+(zigzag) parts later. A possible general reason why the parity zigzag in [Part 3](#3-where-does-xor-fall-short-the-parity-clue) is learned late; the
 paper does not study masking or parity.
 
 Tancik, Srinivasan, Mildenhall, Fridovich-Keil, Raghavan, Singhal, Ramamoorthi, Barron, and Ng (2020),
@@ -768,17 +765,17 @@ Nakkiran, Neyshabur, and Sedghi (2021), "The Deep Bootstrap Framework: Good Onli
 Offline Generalizers" ([arXiv:2010.08127](https://arxiv.org/abs/2010.08127), ICLR 2021). Compares
 training on a fixed dataset that is reused across steps with training on fresh samples at every step,
 and reports that the two stay close until the fixed-data run stops improving. The framing behind our
-fixed-versus-fresh comparison in Part 4.
+fixed-versus-fresh comparison in [Part 4](#4-what-causes-the-flat-start).
 
 Ziyin, Hartwig, and Ueda (2020), "Neural Networks Fail to Learn Periodic Functions and How to Fix It"
 ([arXiv:2006.08195](https://arxiv.org/abs/2006.08195), NeurIPS 2020). Argues that networks with ordinary
 activations such as ReLU handle periodic patterns poorly and proposes a periodic activation. Part of the
-motivation for trying a sine first layer in Part 5; their results are about extrapolation, not masking.
+motivation for trying a sine first layer in [Part 5](#5-testing-the-cause-directly); their results are about extrapolation, not masking.
 
 Chizat, Oyallon, and Bach (2019), "On Lazy Training in Differentiable Programming"
 ([arXiv:1812.07956](https://arxiv.org/abs/1812.07956), NeurIPS 2019). Describes a "lazy" regime, reached
 for example with a large output scale, in which a network trains while its internal features barely
-change. Used to interpret why a larger starting scale slows XOR's flat start in Part 5.
+change. Used to interpret why a larger starting scale slows XOR's flat start in [Part 5](#5-testing-the-cause-directly).
 
 ## Glossary
 
@@ -815,15 +812,15 @@ Extra inputs made by taking sines and cosines of the original inputs. They hand 
 ready-made oscillating patterns.
 [More](https://papers.neurips.cc/paper_files/paper/2020/file/55053683268957697aa39fba6f231c68-Paper.pdf)
 
-### Gradient
-The direction in which each weight should change to reduce the training loss. Training follows it
-one small step at a time; with a small batch it is only a noisy estimate.
-[More](https://en.wikipedia.org/wiki/Gradient_descent)
-
 ### Gaussian noise
 Random error drawn from a bell-shaped (normal) distribution. Here it models the measurement
 noise added to each leaked Hamming weight.
 [More](https://en.wikipedia.org/wiki/Normal_distribution)
+
+### Gradient
+The direction in which each weight should change to reduce the training loss. Training follows it
+one small step at a time; with a small batch it is only a noisy estimate.
+[More](https://en.wikipedia.org/wiki/Gradient_descent)
 
 ### Hamming distance
 The number of bit positions in which two binary numbers differ. Example: `1100` and `1010` differ in
@@ -918,15 +915,15 @@ How big a useful signal is compared with the random noise around it. Below 1, th
 than the signal.
 [More](https://en.wikipedia.org/wiki/Signal-to-noise_ratio)
 
-### Standard deviation
-A measure of how spread out random values are. Here σ (sigma) sets how noisy each reading
-is: larger σ means noisier readings and less information.
-[More](https://en.wikipedia.org/wiki/Standard_deviation)
-
 ### Soft label
 A training label that spreads probability over several answers. Here it is the exact posterior:
 the true probability of each secret given the trace, which a real attacker would not have.
 [More](https://en.wikipedia.org/wiki/Knowledge_distillation)
+
+### Standard deviation
+A measure of how spread out random values are. Here σ (sigma) sets how noisy each reading
+is: larger σ means noisier readings and less information.
+[More](https://en.wikipedia.org/wiki/Standard_deviation)
 
 ### Trace
 One recorded measurement of a device while it processes a secret once. On real hardware it is

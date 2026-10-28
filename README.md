@@ -39,8 +39,8 @@ networks get to it.
 
 **Setup (used throughout).** The secret `s` is a byte (0–255, uniform), the mask `m` is a
 fresh random byte. Each share leaks its **[Hamming weight](#hamming-weight)** (number of 1 bits) plus [Gaussian
-noise](#gaussian-noise) with [standard deviation](#standard-deviation) σ. The attacker sees two noisy numbers and must guess `s`. We
-chose this model because it is small enough to compute everything exactly. A published paper
+noise](#gaussian-noise) with [standard deviation](#standard-deviation) σ. The attacker sees two noisy numbers, one [trace](#trace), and must guess `s`.
+We chose this model because it is small enough to compute everything exactly. A published paper
 uses the same kind of model for Boolean masking ([Cheng et al. 2021](https://arxiv.org/abs/2105.07436)), and Hamming-weight models
 fit some real 8-bit chips ([Brier et al. 2004](https://www.iacr.org/archive/ches2004/31560016/31560016.pdf)), but that does not make it a model of any
 particular device.
@@ -329,6 +329,12 @@ electromagnetic emissions or timing, rather than from the algorithm's inputs and
 A measure of how spread out random values are. Here σ (sigma) sets how noisy each reading
 is: larger σ means noisier readings and less information.
 [More](https://en.wikipedia.org/wiki/Standard_deviation)
+
+### Trace
+One recorded measurement of a device while it processes a secret once. On real hardware it is
+a power or electromagnetic signal over time; in this project it is simply the pair of noisy
+Hamming-weight readings of the two shares. Attacks use many traces, each with a fresh mask.
+[More](https://en.wikipedia.org/wiki/Power_analysis)
 
 ### XOR
 Exclusive or: a bitwise operation that outputs 1 where two bits differ. Example:

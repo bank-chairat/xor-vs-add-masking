@@ -295,6 +295,139 @@ plain readings is hard, and any oscillating input shortcuts that.
 in training, or does it depend on settings like batch size and learning rate? That is the subject of
 [Part 4](#4-what-causes-the-flat-start).
 
+## 4. What causes the flat start?
+
+**Question.** [Part 3](#3-where-does-xor-fall-short-the-parity-clue) found that plain XOR networks learn
+nothing about the parity clue for about the first 1,000 steps. What sets the length of that flat start?
+We tested the usual suspects one at a time: how strong the parity signal is, the
+[learning rate](#learning-rate), the [batch size](#batch-size), the network's width, reusing the same
+training data, and the noise in the training labels.
+
+**Where the ideas came from.** Mostly from our own previous result each time: each experiment below
+was chosen because the one before it pointed there. The fresh-data comparison follows the framing of
+[Nakkiran et al. 2021](https://arxiv.org/abs/2010.08127) (training on a fixed set versus fresh
+samples). Two experiments (unequal noise on the two shares, and splitting Adam's two internal
+averages) replicate suggestions from an outside discussion in our own code before we relied on them.
+
+**What we measure.** The **flat start** is the first training step at which the parity part of the gap
+has fallen below 90% of its starting value. Shorter is better.
+
+**Files.**
+- [a12_runs.py](experiments/a12_runs.py) – Experiments 12–14: fresh data every step, a longer
+  learning-rate schedule, and different noise levels. Results in [a12/](experiments/a12).
+- [a15_runs.py](experiments/a15_runs.py), [a16_runs.py](experiments/a16_runs.py) – Experiments 15–16:
+  learning rate, batch size and width. Results in [a15/](experiments/a15), [a16/](experiments/a16).
+- [a17_runs.py](experiments/a17_runs.py), [a18_runs.py](experiments/a18_runs.py) – Experiments 17–18:
+  training on [soft labels](#soft-label) instead of [one-hot labels](#one-hot-label), and mixtures of the two.
+  Results in [a17/](experiments/a17), [a18/](experiments/a18).
+- [a19_runs.py](experiments/a19_runs.py), [a22_runs.py](experiments/a22_runs.py),
+  [a27_runs.py](experiments/a27_runs.py) – Experiments 19, 22 and 27: tests of a rule of thumb for the
+  flat start. Results in `a19/`, `a19b/`, `a22a/`–`a22e/`, `a27/`, `a27b/`.
+- [a20_runs.py](experiments/a20_runs.py), [a25_runs.py](experiments/a25_runs.py) – Experiments 20 and 25:
+  64,000-step runs on fixed versus fresh data. Results in `a20f/`, `a20r/`, `a25f/`, `a25r/`.
+- [a23_runs.py](experiments/a23_runs.py), [a24_runs.py](experiments/a24_runs.py),
+  [a26_snr.py](experiments/a26_snr.py) – Experiments 23, 24 and 26: unequal share noise, Adam's two
+  averages, and a direct measurement of [gradient](#gradient) noise.
+- [summarize_part4.py](experiments/summarize_part4.py) – rebuilds every number below and draws Figure 3.
+
+```
+cd experiments
+python3 summarize_part4.py     # seconds, from saved results
+# each experiment script reruns its training; see the usage line at the top of each file
+```
+
+**Result 1: a stronger signal shortens it, but doesn't remove it (Experiment 14, 4 seeds).** With less
+noise the parity clue is much stronger, and the flat start shrinks from about 1,100 steps at σ = 0.5 (the Part 3 setting) to
+about 550 at σ = 0.35 and 300 at σ = 0.25. But even at σ = 0.25, after 4,000 steps XOR still has three
+times addition's gap. Signal strength matters, but it isn't the whole story.
+
+**Result 2: noise in training is the main driver (Experiments 15–18 and 26).**
+
+![Parity part of the gap during training at different batch sizes and labels](experiments/results/part4_flat_start.png)
+
+*Figure 3. Parity part of the gap during training for plain XOR networks, one line per seed. Bigger
+batches shorten the flat start; training on exact-posterior (soft) labels removes it.*
+
+*Table 5. Flat start (training steps, median of seeds) under different training settings. XOR, σ = 0.5,
+learning rate 0.002, batch 1,024 unless stated.*
+
+| Setting | Flat start |
+|---|---|
+| batch 256 | 3,450 (one seed never) |
+| batch 1,024 | 1,250 |
+| batch 4,096 | 400 |
+| learning rate 0.0005 / 0.001 / 0.004 | 1,900 / 1,750 / 1,300 |
+| width 64 / 1,024 (instead of 256) | 1,750 / 1,250 |
+| soft labels (exact posterior) | 100 |
+| 3% / 10% / 30% one-hot mixed into the soft labels (2 seeds) | 100 / 150 / 250 |
+
+- **Batch size matters a lot:** four times the batch cuts the flat start about threefold. Learning rate and
+  width matter much less, and a larger learning rate stops helping above 0.002.
+- **Clean labels remove it entirely.** Normally each training example is labelled with its true secret
+  (a one-hot label). But one noisy trace only weakly determines the secret, so from the network's point
+  of view these labels are mostly noise. Training instead on the exact probabilities of each secret
+  (soft labels) makes the flat start disappear (100 steps in every seed) and the final gap 45 times
+  smaller (0.0005 vs 0.0218 bits). Mixing in more one-hot label brings the flat start back smoothly.
+- **The gradient is measurably noisier (Experiment 26).** At the start of training, the one-hot and soft
+  label gradients point the same way on average, but the one-hot gradient is about 900 times noisier.
+  At batch 1,024 its [signal-to-noise ratio](#signal-to-noise-ratio) is about 0.3, meaning the noise is
+  bigger than the signal, while the soft-label gradient's is 200–300.
+- **The noise sits in Adam's update direction (Experiment 24).** Feeding [Adam](#adam) the soft-label
+  gradient for its update direction, while keeping the one-hot gradient for its step-size estimate,
+  recovers most of the benefit (parity part 4 times smaller after 4,000 steps).
+
+Together these point to one explanation: the parity signal in each batch is small, and one-hot label
+noise drowns it, so the network needs many steps or large batches to average the noise away. This is
+still a correlation-based case. The direct causal test is in [Part 5](#5-testing-the-cause-directly).
+
+**Result 3: a rule of thumb that predicts the flat start (Experiments 19, 22, 27).** No single
+combination of learning rate and batch size (such as their ratio) describes the flat start. But a
+formula fitted to earlier runs,
+
+`ln T = 17.23 + 1.66 ln(lr) + 0.144 ln(lr)² − 0.772 ln(B)`
+
+(T the flat start, lr the learning rate, B the batch size, ln the natural log) predicted
+four new settings to within 17% before they were run (Table 6). It stops working above a batch of
+about 4,000: at batch 8,192 and 16,384 the flat start is 1.5–1.8 times longer than predicted. From
+Experiment 26 we estimate that the gradient's signal-to-noise ratio reaches 1 near a batch of 3,400, so a
+likely reading is that beyond that point extra batch no longer removes noise that matters.
+
+*Table 6. Flat start predicted by the formula before running, and observed (median of 4 seeds).*
+
+| Learning rate, batch | Predicted | Observed |
+|---|---|---|
+| 0.002, 512 | 2,114 | 1,850 |
+| 0.001, 2,048 | 850 | 800 |
+| 0.003, 1,024 | 1,203 | 1,450 |
+| 0.0005, 4,096 | 670 | 700 |
+
+**Result 4: the Part 2 puzzle is data reuse (Experiments 20 and 25, 2 seeds).** Both maskings got worse
+between 16,000 and 64,000 steps in [Part 2](#2-do-trained-networks-reach-the-ceiling). The same 64,000-step
+runs with a fresh batch drawn at every step don't get worse (Table 7). With the fixed set of 1,000,000
+traces, each trace is seen about 65 times and the networks start memorizing noise, mostly by treating
+secrets with the same Hamming weight differently ([overfitting](#overfitting)).
+
+*Table 7. Gap after 64,000 steps (bits), fixed training set vs a fresh batch every step.*
+
+| | Fixed 1M traces | Fresh batches |
+|---|---|---|
+| XOR | 0.0131, 0.0132 | 0.0005, 0.0008 |
+| Addition | 0.0182, 0.0139 | 0.0022, 0.0019 |
+
+**Ruled out along the way.** Fresh data does *not* clearly reduce the parity part at 4,000 steps
+(Experiment 12: changes stay within seed-to-seed variation), so data reuse explains the late worsening
+but not the parity delay. Stretching the learning-rate schedule does not change the first 2,000 steps
+(Experiment 13). With unequal noise on the two shares, one-hot labels
+still give a flat start of 1,400–2,300 steps and soft labels still remove it (Experiment 23).
+
+**What it answered.** The flat start is mainly a noise problem: a weak parity signal hidden by the noise
+of one-hot labels in each batch. Bigger batches reduce it, clean labels remove it, and a simple formula
+predicts its length within its range.
+
+**What it raised.** So far the evidence is circumstantial: soft labels change more than just the noise.
+Can we add *only* the noise and bring the flat start back? And is the weak signal a property of how the
+network represents parity, so that a different kind of network would not need to wait?
+
 ## Related work
 
 Prouff, Strullu, Benadjila, Cagli, and Dumas (2018), "Study of Deep Learning Techniques for
@@ -372,6 +505,12 @@ reports learning curves with plateaus followed by jumps, where one jump correspo
 from odd Hamming weights. Real-hardware evidence that parity is learned as a separate, late feature;
 arithmetic masking is not studied.
 
+Nakkiran, Neyshabur, and Sedghi (2021), "The Deep Bootstrap Framework: Good Online Learners are Good
+Offline Generalizers" ([arXiv:2010.08127](https://arxiv.org/abs/2010.08127), ICLR 2021). Compares
+training on a fixed dataset that is reused across steps with training on fresh samples at every step,
+and reports that the two stay close until the fixed-data run stops improving. The framing behind our
+fixed-versus-fresh comparison in Part 4.
+
 ## Glossary
 
 Short definitions of the technical terms used above. Each links to a longer explanation.
@@ -385,6 +524,11 @@ the recent size of that weight's gradients.
 The Advanced Encryption Standard, the most widely used block cipher. Side-channel research
 often attacks one byte of its internal state at a time, which is why our secret is one byte.
 [More](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+
+### Batch size
+How many training examples the network looks at before each update. A bigger batch averages out
+more noise per step.
+[More](https://en.wikipedia.org/wiki/Stochastic_gradient_descent)
 
 ### Cross entropy
 How surprised a model is, on average, by the true answer, measured in bits. Lower is better.
@@ -401,6 +545,11 @@ compared with.
 Extra inputs made by taking sines and cosines of the original inputs. They hand a network
 ready-made oscillating patterns.
 [More](https://papers.neurips.cc/paper_files/paper/2020/file/55053683268957697aa39fba6f231c68-Paper.pdf)
+
+### Gradient
+The direction in which each weight should change to reduce the training loss. Training follows it
+one small step at a time; with a small batch it is only a noisy estimate.
+[More](https://en.wikipedia.org/wiki/Gradient_descent)
 
 ### Gaussian noise
 Random error drawn from a bell-shaped (normal) distribution. Here it models the measurement
@@ -439,6 +588,10 @@ How many bits a measurement tells you, on average, about a secret. For an 8-bit 
 No attacker can extract more than this, which is why we use it as the ceiling.
 [More](https://en.wikipedia.org/wiki/Mutual_information)
 
+### One-hot label
+A training label that puts all probability on the one true answer, here the true secret.
+[More](https://en.wikipedia.org/wiki/One-hot)
+
 ### Overfitting
 When a model memorizes its training data instead of learning the general rule, so it does
 worse on new data.
@@ -470,10 +623,20 @@ An attack that learns a secret from physical effects of a computation, such as p
 electromagnetic emissions or timing, rather than from the algorithm's inputs and outputs.
 [More](https://en.wikipedia.org/wiki/Side-channel_attack)
 
+### Signal-to-noise ratio
+How big a useful signal is compared with the random noise around it. Below 1, the noise is bigger
+than the signal.
+[More](https://en.wikipedia.org/wiki/Signal-to-noise_ratio)
+
 ### Standard deviation
 A measure of how spread out random values are. Here σ (sigma) sets how noisy each reading
 is: larger σ means noisier readings and less information.
 [More](https://en.wikipedia.org/wiki/Standard_deviation)
+
+### Soft label
+A training label that spreads probability over several answers. Here it is the exact posterior:
+the true probability of each secret given the trace, which a real attacker would not have.
+[More](https://en.wikipedia.org/wiki/Knowledge_distillation)
 
 ### Trace
 One recorded measurement of a device while it processes a secret once. On real hardware it is

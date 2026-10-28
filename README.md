@@ -75,7 +75,9 @@ python3 tests_sanity.py   # ~3 s, prints: all sanity checks passed
 python3 ceiling.py        # ~3 s, prints the checks and the table below
 ```
 
-**Result** (bits of information about the 8-bit secret):
+**Result.** XOR leaks more than addition at every noise level (Table 1).
+
+*Table 1. Information ceiling: bits an ideal attacker learns about the 8-bit secret from one trace.*
 
 | Noise σ | XOR | Addition mod 256 |
 |---|---|---|
@@ -153,9 +155,16 @@ only 2,000–10,000 traces every network [overfits](#overfitting). At σ = 0.5, 
 are about three times further from their ceiling than addition networks (0.022–0.031 vs
 0.008 bits, 2 seeds).
 
-**Result 2: the gap is about training time (Experiment 3, σ = 0.5, 6 seeds).**
+**Result 2: the gap is about training time (Experiment 3, σ = 0.5, 6 seeds).** Figure 1 shows
+each run; Table 2 gives the averages.
 
-![Distance from the ceiling vs. training steps](experiments/results/ch2_gap_vs_steps.png)
+![Gap from the ceiling vs. training steps](experiments/results/ch2_gap_vs_steps.png)
+
+*Figure 1. Gap from the information ceiling after 4,000, 16,000 and 64,000 training steps
+(σ = 0.5, 1,000,000 training traces). Small dots are individual runs; large dots joined by
+lines are averages. Lower is better.*
+
+*Table 2. Average gap from the ceiling (bits) by training length.*
 
 | Training steps | XOR | Addition |
 |---|---|---|

@@ -5,6 +5,36 @@ slowly than another, written up in the order the work was done. Each part says w
 question we asked, where the idea came from, which files answer it, what we found, and what
 it led to next.
 
+## Summary
+
+When a neural network struggles to attack a masked secret, is it because the measurements reveal less
+about the secret, or because the rule linking them to it is harder to learn? We separate the two in a
+simulated setting: an 8-bit secret split into two shares, each leaking its Hamming weight plus Gaussian
+noise. XOR masking leaks *more* information than arithmetic masking (0.144 vs 0.108 bits at σ = 0.5),
+yet small neural networks need about four times more training to get as close to that limit. The extra
+time goes into one clue, the parity of the secret's Hamming weight, which ordinary networks ignore for a
+long flat start. Adding only the noise of one-hot training labels to otherwise clean training brings the
+flat start back (1,450 vs 100 steps), showing that label noise causes it, and a sine first layer removes
+it (100 vs 1,250 steps). The effect belongs to Hamming-weight leakage: with weighted-bit leakage both
+XOR's advantage and the flat start disappear, while a transition leak between the shares raises XOR's
+information from 0.144 to 1.63 bits. Everything here is simulated; nothing is measured on real hardware.
+
+## Contents
+
+The parts follow the order the work was done. Each says what we asked, where the idea came from, which
+files answer it, what we found, and what it led to next.
+
+- [Motivation and question](#motivation-and-question)
+- [1. Is there less information?](#1-is-there-less-information) The information ceiling
+- [2. Do trained networks reach the ceiling?](#2-do-trained-networks-reach-the-ceiling) XOR needs more training
+- [3. Where does XOR fall short? The parity clue](#3-where-does-xor-fall-short-the-parity-clue) A long flat start on parity
+- [4. What causes the flat start?](#4-what-causes-the-flat-start) Batch size, label noise and a rule of thumb
+- [5. Testing the cause directly](#5-testing-the-cause-directly) Label noise causes it; a sine layer removes it
+- [6. Does it hold under other leakage models?](#6-does-it-hold-under-other-leakage-models) Weighted bits and a transition leak
+- [7. Link to the adder project, checks, and open questions](#7-link-to-the-adder-project-checks-and-open-questions)
+- [Related work](#related-work) and [Glossary](#glossary)
+- Full lab notebook: [PROGRESS.md](PROGRESS.md)
+- 
 **Scope, up front:** everything here is simulated. The leakage model is mostly one simple
 model (Hamming weight plus Gaussian noise), the networks are small MLPs, and nothing is
 measured on a real device. Results are claims about this model only.

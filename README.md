@@ -9,7 +9,7 @@ it led to next.
 model (Hamming weight plus Gaussian noise), the networks are small MLPs, and nothing is
 measured on a real device. Results are claims about this model only.
 
-## 0. Motivation and question
+## Motivation and question
 
 **[Masking](#masking)** is a standard defence against [side-channel attacks](#side-channel-attack), where an attacker learns a
 secret from a device's power use or electromagnetic emissions. The device never handles the
@@ -74,7 +74,7 @@ and common model of how much power a chip uses when it handles a value.
 A defence that never handles a secret directly: the secret is split into random
 [shares](#shares), and the device only ever works on the shares. An attacker then has to
 combine the leakage of all shares, which takes far more measurements when there is noise.
-[More (research paper)](https://cyber.gouv.fr/sites/default/files/IMG/pdf/Masking_against_Side-Channel_Attacks_prouff-rivain.pdf)
+[More (research paper)](https://www.iacr.org/archive/eurocrypt2013/78810139/78810139.pdf)
 
 ### MLP
 Multilayer perceptron: a basic neural network made of stacked fully connected layers. All

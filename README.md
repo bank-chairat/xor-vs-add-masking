@@ -19,3 +19,9 @@ Suppose a network finds one masking harder to attack. There are two very differe
 2. **Learnability:** the measurements carry the same or more information, but the rule linking them to the secret is harder for a network to learn. Then a network that fails says more about its training than about the protection.
 
 These need different evidence, so the project separates them: first compute exactly how much information is available, a ceiling no attacker can beat, then measure how close trained networks get to it.
+
+**Setup (used throughout).** The secret `s` is a byte (0–255, uniform), the mask `m` is a fresh random byte. Each share leaks its Hamming weight (number of 1 bits) plus Gaussian noise with standard deviation σ. The attacker sees two noisy numbers and must guess `s`. We chose this model because it is small enough to compute everything exactly. A published paper uses the same kind of model for Boolean masking (Cheng et al. 2021), and Hamming-weight models fit some real 8-bit chips (Brier et al. 2004), but that does not make it a model of any particular device.
+
+**Reading status.** literature.md records every paper we used, with how much of it we actually read (many at abstract level only) and what it does and does not support. A claim goes into this write-up only if it is our own measurement or is supported there.
+
+**Environment:** Python 3.13, CPU only, versions pinned in requirements.txt.

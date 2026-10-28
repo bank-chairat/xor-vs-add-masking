@@ -195,6 +195,105 @@ steps, depth or data, it gets there. XOR simply needs *more training* to get as 
 clue. Next we look at where exactly XOR's networks fall short, and when during training they
 learn the parity.
 
+## 3. Where does XOR fall short? The parity clue
+
+**Question.** [Part 2](#2-do-trained-networks-reach-the-ceiling) showed that XOR networks need more
+training. Which part of the job is slow? Our guess: the [parity](#parity) clue from
+[Part 1](#1-is-there-less-information). Under XOR, whether the secret has an even or odd number of
+1 bits shows up as whether the two readings add up to an even or odd number. As a function of the
+readings, that flips every time their sum moves by one, a zigzag the network has to build out of
+plain numbers. Addition has no such clue.
+
+**Where the idea came from.** Our own reasoning from earlier results: the parity identity
+([Part 1](#1-is-there-less-information)), deeper networks helping, and noise-free XOR networks learning parity
+([Part 2](#2-do-trained-networks-reach-the-ceiling)). We found papers on the same theme only afterwards:
+[Rahaman et al. 2019](https://arxiv.org/abs/1806.08734) (networks learn smooth, low-frequency
+patterns before zigzag, high-frequency ones), [Tancik et al. 2020](https://papers.neurips.cc/paper_files/paper/2020/file/55053683268957697aa39fba6f231c68-Paper.pdf)
+(feeding a network sine and cosine features makes zigzag patterns easy), and a study of real masked
+AES traces that also sees parity learned late ([arXiv:2502.00384](https://arxiv.org/abs/2502.00384)).
+Experiment 10 was designed after reading the first two; Experiment 11 tests an idea from
+[Barak et al. 2022](https://proceedings.neurips.cc/paper_files/paper/2022/file/884baf65392170763b27c914087bde01-Paper-Conference.pdf) that parity is learned after a long flat stretch.
+
+**How we split the gap.** Guessing the secret can be done in two stages: first guess its parity
+group (even or odd number of 1 bits), then the secret inside that group. The
+[cross entropy](#cross-entropy) splits exactly the same way, so the gap splits into a
+**parity part** and a **within part**, each compared with the best possible attacker (the
+[exact posterior](#exact-posterior)) on the same test traces.
+
+**Files.**
+- [parity_tests.py](experiments/parity_tests.py) – Experiment 9: splits the gap into the two parts,
+  and trains with extra inputs that hand the network a parity-like clue. Results in [a09/](experiments/a09).
+- [parity_tests_a10.py](experiments/parity_tests_a10.py) – Experiment 10: extra inputs at the wrong
+  frequency, a shifted phase, or random frequencies ([Fourier features](#fourier-features)). Results in [a10/](experiments/a10).
+- [a11_curves.py](experiments/a11_curves.py) – Experiment 11: records the parity part at every 100
+  training steps on a [validation set](#validation-set). Results in [a11/](experiments/a11).
+- [summarize_part3.py](experiments/summarize_part3.py) – rebuilds every number below and draws Figure 2.
+
+```
+cd experiments
+python3 summarize_part3.py         # seconds, from saved results
+# to rerun the training (4 seeds each, about 1-4 minutes per run on CPU):
+python3 parity_tests.py a09
+python3 parity_tests_a10.py a10
+python3 a11_curves.py a11
+```
+
+**Result 1: the shortfall is the parity part (Experiment 9, 4 seeds).** At 4,000 steps, 72% of
+XOR's gap is the parity part (Table 3). With four times more training it almost disappears, while
+the within part stays the same for both maskings.
+
+*Table 3. The gap (bits) split into its parity part and within part.*
+
+| Masking, training steps | Gap | Parity part | Within part |
+|---|---|---|---|
+| XOR, 4,000 | 0.0248 | 0.0180 | 0.0068 |
+| XOR, 16,000 | 0.0079 | 0.0014 | 0.0065 |
+| Addition, 4,000 | 0.0090 | 0.0007 | 0.0083 |
+| Addition, 16,000 | 0.0086 | 0.0005 | 0.0081 |
+
+**Result 2: handing over a zigzag input removes most of the gap (Experiments 9–10, 4 seeds).** Each
+extra input is computed only from the two noisy readings `r1` and `r2`, never from the answer.
+
+*Table 4. XOR gap at 4,000 steps with different extra inputs. The sine and cosine inputs leave
+addition unchanged (0.0080 to 0.0094).*
+
+| Extra input | XOR gap | Parity part |
+|---|---|---|
+| none (plain readings) | 0.0248 | 0.0180 |
+| `r1 + r2` (linear control) | 0.0322 | 0.0245 |
+| `cos(π(r1+r2))`, the parity zigzag | 0.0106 | 0.0039 |
+| `cos(π(r1+r2) + π/4)`, shifted | 0.0130 | 0.0058 |
+| `cos(π/2 (r1+r2))`, half frequency | 0.0119 | 0.0053 |
+| `cos(2π(r1+r2))`, double frequency | 0.0306 | 0.0234 |
+| 16 random sine and cosine features | 0.0088 | 0.0009 |
+
+The parity zigzag removes about 90% of the gap between XOR and addition, and 16 random sinusoids
+work just as well. A plain extra input does not help, and neither does a zigzag twice too fast
+(which equals 1 at every whole-number sum, so it carries no parity). We predicted the
+half-frequency input would not help. It did, so the strict "only the exact frequency works" idea is
+wrong. What helps is giving the network *some* oscillating input to build from.
+
+**Result 3: a long flat start (Experiment 11, 4 seeds).**
+
+![Parity part of the gap during training](experiments/results/part3_parity_curves.png)
+
+*Figure 2. Parity part of the gap during training, one line per seed. Plain XOR networks (red) learn
+nothing about parity for about the first 1,000 steps, then improve slowly at different times; one seed
+is still far off at step 4,000. With the zigzag input (orange) the drop starts at once. Addition (blue)
+has almost no parity information to learn.*
+
+With plain inputs, the parity part first falls below half its starting value at step 2,300, 2,800
+and 3,200 in three seeds, and never in the fourth. With the zigzag input it does so at steps 900 to
+1,200 in all four. We predicted a flat start followed by a *sudden* drop. The flat start is real,
+but the drop is gradual.
+
+**What it answered.** XOR's extra training time goes mostly into one thing: the parity clue. The
+network spends a long time learning nothing about it, apparently because building a zigzag out of
+plain readings is hard, and any oscillating input shortcuts that.
+
+**What it raised.** *Why* the long flat start? Is the parity signal too weak, is it hidden by noise
+in training, or does it depend on settings like batch size and learning rate? That is the subject of
+[Part 4](#4-what-causes-the-flat-start).
 
 ## Related work
 
@@ -248,6 +347,31 @@ CRYPTO 2019). Defines perceived information as the information an estimated mode
 shows it cannot exceed the true mutual information when the secret is uniform. Cited for why our
 networks can never beat the ceiling from Part 1.
 
+Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht, Bengio, and Courville (2019), "On the Spectral
+Bias of Neural Networks" ([arXiv:1806.08734](https://arxiv.org/abs/1806.08734), ICML 2019). Reports
+that ReLU networks learn the low-frequency (smooth) parts of a function first and the high-frequency
+(zigzag) parts later. A possible general reason why the parity zigzag in Part 3 is learned late; the
+paper does not study masking or parity.
+
+Tancik, Srinivasan, Mildenhall, Fridovich-Keil, Raghavan, Singhal, Ramamoorthi, Barron, and Ng (2020),
+"Fourier Features Let Networks Learn High Frequency Functions in Low Dimensional Domains"
+([NeurIPS 2020](https://papers.neurips.cc/paper_files/paper/2020/file/55053683268957697aa39fba6f231c68-Paper.pdf)).
+Shows that passing inputs through sine and cosine features lets a small network learn high-frequency
+functions it otherwise learns very slowly. The same idea as our extra inputs in Experiment 10, on
+different tasks (images and 3D shapes).
+
+Barak, Edelman, Goel, Kakade, Malach, and Zhang (2022), "Hidden Progress in Deep Learning: SGD Learns
+Parities Near the Computational Limit" ([NeurIPS 2022](https://proceedings.neurips.cc/paper_files/paper/2022/file/884baf65392170763b27c914087bde01-Paper-Conference.pdf)).
+Finds that networks learning parity functions show long periods of no visible progress followed by
+rapid improvement. Their setting is clean bits with an exact parity label, so it is an analogy for
+our flat start, not direct support.
+
+"Interpreting Emergent Features in Deep Learning-based Side-channel Analysis"
+([arXiv:2502.00384](https://arxiv.org/abs/2502.00384), 2025). On real Boolean-masked AES traces,
+reports learning curves with plateaus followed by jumps, where one jump corresponds to telling even
+from odd Hamming weights. Real-hardware evidence that parity is learned as a separate, late feature;
+arithmetic masking is not studied.
+
 ## Glossary
 
 Short definitions of the technical terms used above. Each links to a longer explanation.
@@ -266,6 +390,17 @@ often attacks one byte of its internal state at a time, which is why our secret 
 How surprised a model is, on average, by the true answer, measured in bits. Lower is better.
 A model that guesses uniformly among 256 secrets has a cross entropy of 8 bits.
 [More](https://en.wikipedia.org/wiki/Cross-entropy)
+
+### Exact posterior
+The probability of each possible secret given a trace, computed exactly from the known leakage
+model. It is what a perfect attacker would output, so it is the benchmark the network is
+compared with.
+[More](https://en.wikipedia.org/wiki/Posterior_probability)
+
+### Fourier features
+Extra inputs made by taking sines and cosines of the original inputs. They hand a network
+ready-made oscillating patterns.
+[More](https://papers.neurips.cc/paper_files/paper/2020/file/55053683268957697aa39fba6f231c68-Paper.pdf)
 
 ### Gaussian noise
 Random error drawn from a bell-shaped (normal) distribution. Here it models the measurement
@@ -345,6 +480,10 @@ One recorded measurement of a device while it processes a secret once. On real h
 a power or electromagnetic signal over time; in this project it is simply the pair of noisy
 Hamming-weight readings of the two shares. Attacks use many traces, each with a fresh mask.
 [More](https://en.wikipedia.org/wiki/Power_analysis)
+
+### Validation set
+Data held out from training and used to check the network's progress during training.
+[More](https://en.wikipedia.org/wiki/Training,_validation,_and_test_data_sets)
 
 ### XOR
 Exclusive or: a bitwise operation that outputs 1 where two bits differ. Example:

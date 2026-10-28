@@ -1,0 +1,4 @@
+A-31-h2.0-o0.125-xor-sig0.5-s2500-sched1000000000-fixed-seed0 A=0.0305 B=0.0106 C=0.0065 total=0.0476 (781s)
+A-31-h2.0-o0.125-xor-sig0.5-s2500-sched1000000000-fixed-seed1 A=0.0314 B=0.0072 C=0.0061 total=0.0447 (361s)
+A-31-h2.0-o0.125-xor-sig0.5-s2500-sched1000000000-fixed-seed2 A=0.0230 B=0.0092 C=0.0065 total=0.0386 (322s)
+A-31-h2.0-o0.125-xor-sig0.5-s2500-sched1000000000-fixed-seed3 A=0.0308 B=0.0080 C=0.0066 total=0.0454 (830s)

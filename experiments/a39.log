@@ -1,0 +1,4 @@
+A-39-relu-w4.0-xor-sig0.5-s2500-sched1000000000-fixed-seed0 A=0.0328 B=0.0142 C=0.0052 total=0.0521 (326s)
+A-39-relu-w4.0-xor-sig0.5-s2500-sched1000000000-fixed-seed1 A=0.0333 B=0.0121 C=0.0051 total=0.0505 (358s)
+A-39-relu-w4.0-xor-sig0.5-s2500-sched1000000000-fixed-seed2 A=0.0270 B=0.0116 C=0.0062 total=0.0449 (307s)
+A-39-relu-w4.0-xor-sig0.5-s2500-sched1000000000-fixed-seed3 A=0.0332 B=0.0118 C=0.0059 total=0.0509 (325s)

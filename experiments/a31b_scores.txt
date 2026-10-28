@@ -1,0 +1,2 @@
+A-31-h2.0-o2.0 flat start per seed [-1, 4400, -1, 4400] median 5200.0
+references: c = 1 (A-15/A-28): 900 1300 1300 1200 (median 1,250); c = 2 (all layers): no escape by 2,500 in 4 of 4

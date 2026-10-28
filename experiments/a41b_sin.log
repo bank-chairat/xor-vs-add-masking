@@ -1,0 +1,4 @@
+A-34-sin-w4.0-sig0.6-xor-sig0.6-s4000-sched1000000000-fixed-seed0 A=0.0013 B=0.0036 C=0.0139 total=0.0187 (1153s)
+A-34-sin-w4.0-sig0.6-xor-sig0.6-s4000-sched1000000000-fixed-seed1 A=0.0010 B=0.0035 C=0.0153 total=0.0199 (969s)
+A-34-sin-w4.0-sig0.6-xor-sig0.6-s4000-sched1000000000-fixed-seed2 A=0.0009 B=0.0037 C=0.0124 total=0.0169 (397s)
+A-34-sin-w4.0-sig0.6-xor-sig0.6-s4000-sched1000000000-fixed-seed3 A=0.0010 B=0.0036 C=0.0148 total=0.0195 (270s)

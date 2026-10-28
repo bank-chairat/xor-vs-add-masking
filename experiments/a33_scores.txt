@@ -1,0 +1,12 @@
+soft seed 0: flat start 1500; A at 1000/2000/3000/6000: 0.0342 0.0241 0.0187 0.0040
+soft seed 1: flat start 900; A at 1000/2000/3000/6000: 0.0296 0.0182 0.0140 0.0026
+soft seed 2: flat start 1100; A at 1000/2000/3000/6000: 0.0319 0.0207 0.0176 0.0097
+soft seed 3: flat start 1000; A at 1000/2000/3000/6000: 0.0312 0.0198 0.0152 0.0027
+soft: flat starts [1500, 900, 1100, 1000], median 1050.0 (censored counted as 6,000), censored 0/4, A at end mean 0.0047
+hard seed 0: flat start 3600; A at 1000/2000/3000/6000: 0.0351 0.0346 0.0333 0.0141
+hard seed 1: flat start 3700; A at 1000/2000/3000/6000: 0.0348 0.0346 0.0337 0.0191
+hard seed 2: flat start 2300; A at 1000/2000/3000/6000: 0.0350 0.0337 0.0285 0.0130
+hard seed 3: flat start 4200; A at 1000/2000/3000/6000: 0.0351 0.0352 0.0346 0.0197
+hard: flat starts [3600, 3700, 2300, 4200], median 3650.0 (censored counted as 6,000), censored 0/4, A at end mean 0.0165
+(1) soft median <= 2000: HIT (1050.0)
+(2) hard median >= 2 x soft or censored in >= 3/4: ratio 3.48

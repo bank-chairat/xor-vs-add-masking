@@ -1,0 +1,6 @@
+seed 0: flat start 100; validation A / B / C / total at 2,500: 0.0013 / 0.0035 / 0.0047 / 0.0096
+seed 1: flat start 100; validation A / B / C / total at 2,500: 0.0015 / 0.0028 / 0.0053 / 0.0097
+seed 2: flat start 100; validation A / B / C / total at 2,500: 0.0017 / 0.0029 / 0.0038 / 0.0084
+seed 3: flat start 100; validation A / B / C / total at 2,500: 0.0012 / 0.0038 / 0.0060 / 0.0109
+(1) C at 2,500 at most 0.008 in >= 3 of 4: 4 of 4 -> HIT
+(2) flat start at most 200 in all seeds: [100, 100, 100, 100] -> HIT

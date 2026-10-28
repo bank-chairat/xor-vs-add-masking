@@ -1,0 +1,4 @@
+A-28-c0.25-xor-sig0.5-s2500-sched1000000000-fixed-seed0 A=0.0293 B=0.0061 C=0.0055 total=0.0409 (680s)
+A-28-c0.25-xor-sig0.5-s2500-sched1000000000-fixed-seed1 A=0.0295 B=0.0050 C=0.0046 total=0.0391 (659s)
+A-28-c0.25-xor-sig0.5-s2500-sched1000000000-fixed-seed2 A=0.0280 B=0.0061 C=0.0053 total=0.0394 (626s)
+A-28-c0.25-xor-sig0.5-s2500-sched1000000000-fixed-seed3 A=0.0287 B=0.0062 C=0.0058 total=0.0407 (796s)

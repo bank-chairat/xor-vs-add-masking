@@ -1,0 +1,5 @@
+add: posterior check passed; exact Bayes CE 7.1905 bits, MI 0.8095 bits
+A-38 add soft seed 0: excess at 100 0.0504, 600 0.0107, 4000 0.0068 (738s)
+A-38 add soft seed 1: excess at 100 0.0637, 600 0.0091, 4000 0.0057 (758s)
+A-38 add soft seed 2: excess at 100 0.0676, 600 0.0109, 4000 0.0061 (1481s)
+A-38 add soft seed 3: excess at 100 0.0543, 600 0.0100, 4000 0.0083 (1125s)

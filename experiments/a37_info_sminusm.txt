@@ -1,0 +1,4 @@
+xor without transition reading: I = 0.1447 +- 0.0012 bits
+xor with transition reading: I = 1.6334 +- 0.0030 bits
+add without transition reading: I = 0.1097 +- 0.0011 bits
+add with transition reading: I = 0.8063 +- 0.0027 bits

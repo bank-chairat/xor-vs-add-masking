@@ -1,0 +1,5 @@
+add: posterior check passed; exact Bayes CE 7.1905 bits, MI 0.8095 bits
+A-38 add seed 0: excess at 100 0.2318, 600 0.0721, 4000 0.0340 (392s)
+A-38 add seed 1: excess at 100 0.2096, 600 0.0794, 4000 0.0396 (348s)
+A-38 add seed 2: excess at 100 0.2248, 600 0.0786, 4000 0.0322 (300s)
+A-38 add seed 3: excess at 100 0.2111, 600 0.0721, 4000 0.0347 (545s)

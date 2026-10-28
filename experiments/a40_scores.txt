@@ -1,0 +1,4 @@
+xor: soft excess at 4000 per seed [0.0091, 0.0093, 0.0096, 0.0142] mean 0.0105 | one-hot (A-38) mean 0.0488
+add: soft excess at 4000 per seed [0.0068, 0.0057, 0.0061, 0.0083] mean 0.0067 | one-hot (A-38) mean 0.0351
+(1) both soft means at most 0.010: MISSED (0.0105, 0.0067)
+(2) XOR minus addition gap at most 0.0046 (a third of A-38's 0.0137): HIT (+0.0038)

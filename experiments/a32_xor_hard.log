@@ -1,0 +1,5 @@
+posterior check passed; exact Bayes CE 7.8455 bits, MI 0.1545 bits
+A-32 xor hard seed 0: excess at 25 0.1514, 100 0.0950, 600 0.0337, 4000 0.0169 (1018s)
+A-32 xor hard seed 1: excess at 25 0.1439, 100 0.0881, 600 0.0341, 4000 0.0142 (1071s)
+A-32 xor hard seed 2: excess at 25 0.1525, 100 0.1002, 600 0.0374, 4000 0.0172 (781s)
+A-32 xor hard seed 3: excess at 25 0.1504, 100 0.0909, 600 0.0344, 4000 0.0149 (487s)

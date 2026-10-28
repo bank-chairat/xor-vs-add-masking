@@ -1,0 +1,5 @@
+posterior check passed; exact Bayes CE 7.8520 bits, MI 0.1480 bits
+A-32 add hard seed 0: excess at 25 0.1477, 100 0.1083, 600 0.0325, 4000 0.0137 (562s)
+A-32 add hard seed 1: excess at 25 0.1457, 100 0.0985, 600 0.0308, 4000 0.0143 (700s)
+A-32 add hard seed 2: excess at 25 0.1484, 100 0.1043, 600 0.0336, 4000 0.0120 (576s)
+A-32 add hard seed 3: excess at 25 0.1482, 100 0.1129, 600 0.0289, 4000 0.0135 (614s)

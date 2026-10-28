@@ -1,0 +1,10 @@
+xor seed 0: excess at 0/100/600/1000/2000/4000 1.6510 0.1741 0.0776 0.0593 0.0532 0.0631; fall 100->600 55%; captured 96.1% of the information
+xor seed 1: excess at 0/100/600/1000/2000/4000 1.6603 0.2374 0.0793 0.0748 0.0662 0.0432; fall 100->600 67%; captured 97.4% of the information
+xor seed 2: excess at 0/100/600/1000/2000/4000 1.6582 0.2150 0.1252 0.0715 0.0549 0.0417; fall 100->600 42%; captured 97.4% of the information
+xor seed 3: excess at 0/100/600/1000/2000/4000 1.6545 0.2568 0.0936 0.0608 0.0613 0.0471; fall 100->600 64%; captured 97.1% of the information
+add seed 0: excess at 0/100/600/1000/2000/4000 0.8296 0.2318 0.0721 0.0594 0.0421 0.0340; fall 100->600 69%; captured 95.8% of the information
+add seed 1: excess at 0/100/600/1000/2000/4000 0.8343 0.2096 0.0794 0.0586 0.0466 0.0396; fall 100->600 62%; captured 95.1% of the information
+add seed 2: excess at 0/100/600/1000/2000/4000 0.8341 0.2248 0.0786 0.0569 0.0470 0.0322; fall 100->600 65%; captured 96.0% of the information
+add seed 3: excess at 0/100/600/1000/2000/4000 0.8337 0.2111 0.0721 0.0566 0.0448 0.0347; fall 100->600 66%; captured 95.7% of the information
+(1) XOR excess falls > 50% from 100 to 600 in >= 3 of 4: 3 of 4 -> HIT
+(2) XOR excess at 4000 <= addition's in >= 3 of 4 paired seeds: 0 of 4 -> MISSED; pairs 0.0631/0.0340, 0.0432/0.0396, 0.0417/0.0322, 0.0471/0.0347

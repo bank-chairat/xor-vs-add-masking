@@ -1,0 +1,5 @@
+xor: posterior check passed; exact Bayes CE 6.3665 bits, MI 1.6335 bits
+A-38 xor seed 0: excess at 100 0.1741, 600 0.0776, 4000 0.0631 (393s)
+A-38 xor seed 1: excess at 100 0.2374, 600 0.0793, 4000 0.0432 (349s)
+A-38 xor seed 2: excess at 100 0.2150, 600 0.1252, 4000 0.0417 (330s)
+A-38 xor seed 3: excess at 100 0.2568, 600 0.0936, 4000 0.0471 (518s)

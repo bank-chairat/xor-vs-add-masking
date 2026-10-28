@@ -1,0 +1,3 @@
+xor: MI estimate 0.1550 bits, standard error 0.0009 (400,000 traces)
+add: MI estimate 0.1483 bits, standard error 0.0009 (400,000 traces)
+difference XOR - addition 0.0067 bits, standard error 0.0013

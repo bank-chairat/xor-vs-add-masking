@@ -102,18 +102,24 @@ about *learning*. Next: do trained networks actually reach these limits?
 **Question.** [Part 1](#1-is-there-less-information) says XOR leaks more. So does a trained network actually get close to
 that limit, and does it get as close for XOR as for addition?
 
-**Where the idea came from.** Our own follow-up to Part 1. To measure how much a network has
+**Where the idea came from.** To measure how much a network has
 extracted we use [perceived information](#perceived-information), as in
 [Masure, Dumas & Prouff 2019](https://eprint.iacr.org/2019/439), and we rely on
 [Bronchain et al. 2019](https://eprint.iacr.org/2019/132) for why it can never exceed the true
 information. The network (an [MLP](#mlp)) and optimizer ([Adam](#adam)) were default choices,
 not taken from a paper.
 
-**How we measure the gap.** The network sees the two noisy readings and outputs a probability
-for each of the 256 secrets. Its [cross entropy](#cross-entropy) on fresh test traces gives its
-perceived information (PI = 8 bits − cross entropy). PI can't exceed the ceiling, so the
-**distance from the ceiling** (ceiling − PI, in bits) shows how much information the network
-left on the table. Lower is better, and 0 would mean a perfect attacker.
+**How we measure the gap.** For each trace, the network outputs a probability for each of the
+256 possible secrets. We score it with its [cross entropy](#cross-entropy): how surprised it is,
+on average, by the true secret, in bits. A network that only guesses is surprised by 8 bits;
+whatever it has learned lowers that number. The drop is its
+**[perceived information](#perceived-information) (PI)**: the bits about the secret the network
+actually extracted, or 8 bits minus its cross entropy.
+
+PI can never go above the ceiling from [Part 1](#1-is-there-less-information), so we report the
+**gap**: the ceiling minus PI. A gap of 0 would be a perfect attacker; a bigger gap means the
+network left information unused. Example: at σ = 0.5 the XOR ceiling is 0.144 bits, so an XOR
+network with a gap of 0.026 bits has extracted about 0.118 bits, about 82% of what is possible.
 
 **Files.**
 - [train_mlp.py](experiments/train_mlp.py) – simulates traces, trains the network, measures PI.

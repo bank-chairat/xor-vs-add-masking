@@ -439,6 +439,65 @@ predicts its length within its range.
 Can we add *only* the noise and bring the flat start back? And is the weak signal a property of how the
 network represents parity, so that a different kind of network would not need to wait?
 
+## 5. Testing the cause directly
+
+**Question.** [Part 4](#4-what-causes-the-flat-start) built a case that one-hot label noise hides a weak
+parity signal. But switching to soft labels changes more than the noise, so that case is circumstantial.
+Two direct tests: (1) keep the clean training signal and add back *only* the noise. Does the flat start
+return? (2) If the signal is weak because a normal network has to build the parity zigzag out of plain
+pieces, does a network that can oscillate from the start skip the wait?
+
+**Where the ideas came from.** Test 1 is our own design, the missing step after Parts 3–4. Test 2 follows
+our [Part 3](#3-where-does-xor-fall-short-the-parity-clue) finding that any oscillating input helps, plus [Ziyin et al. 2020](https://arxiv.org/abs/2006.08195),
+who argue that ordinary networks handle periodic patterns poorly and propose periodic activations. We also
+checked whether the result depends on the optimizer, and how the network's starting weight scale matters,
+because a larger starting scale had sped things up in our companion adder project.
+
+**Files.**
+- [a30_noise_inject.py](experiments/a30_noise_inject.py) – Test 1: clean-label training plus pure
+  label noise, at full and 0.3× strength. Scored by [a30_score.py](experiments/a30_score.py). Results in [a30/](experiments/a30).
+- [a34_periodic.py](experiments/a34_periodic.py) – Test 2: the first hidden layer uses `sin` instead of
+  ReLU. The same script runs the ReLU control (`ACT=relu`), the weaker-signal check (`SIG=0.6`) and
+  fresh data (`FRESH=1`). Results in [a34/](experiments/a34), [a39/](experiments/a39), [a41b/](experiments/a41b), [a42/](experiments/a42).
+- [a33_sgd.py](experiments/a33_sgd.py) – Test 1's question with momentum SGD instead of Adam. Results in [a33/](experiments/a33).
+- [a28_runs.py](experiments/a28_runs.py), [a31_runs.py](experiments/a31_runs.py), [a35_move.py](experiments/a35_move.py) –
+  starting weight scale and how far the weights move. Results in `a28_*/`, `a29_*/`, `a31/`, `a31b/`, `a31c/`, `a35/`.
+- [summarize_part5.py](experiments/summarize_part5.py) – runs every scorer above on the saved results and draws Figure 4.
+
+```
+cd experiments
+python3 summarize_part5.py                          # seconds, from saved results
+# to rerun the training (about 2-4 minutes per run on CPU):
+K=1 SEEDS="0 1 2 3" python3 a30_noise_inject.py a30
+WS=4 SEEDS="0 1 2 3" python3 a34_periodic.py a34      # sine layer
+ACT=relu WS=4 SEEDS="0 1 2 3" python3 a34_periodic.py a39
+```
+
+**Result 1: adding only the noise brings the flat start back (A-30, 4 seeds).** We trained on the clean
+exact-posterior gradient and added a zero-average noise term with exactly the statistics of one-hot labels.
+The average training signal is unchanged; only the noise is new. The flat start comes back in full, and a
+third of the noise gives a short one (Table 8). This is the causal test: in this setting, label noise in
+the gradient *causes* the flat start.
+
+*Table 8. Flat start (median of 4 seeds) and parity part after 4,000 steps, XOR, σ = 0.5, using the
+hand-written Adam of Experiment 24 so the noise can be added exactly.*
+
+| Training signal | Flat start (steps) | Parity part at 4,000 (bits) |
+|---|---|---|
+| clean labels | 100 | 0.0004 |
+| clean labels + 0.3× label noise | 250 | 0.0019 |
+| clean labels + full label noise | 1,450 | 0.0101 |
+| ordinary one-hot labels | 1,150 | 0.0105 |
+
+**Result 2: it isn't specific to Adam (A-33, 4 seeds).** With momentum SGD instead of Adam, one-hot labels
+still delay the parity escape 3.5 times compared with clean labels (3,650 vs 1,050 steps).
+
+**Result 3: a sine first layer removes the flat start (A-34, A-39, A-41b, 4 seeds each).**
+
+![Parity part of the gap during training, ReLU vs. sine first layer](experiments/results/part5_sine_layer.png)
+
+*Figure 4. Parity part of the
+
 ## Related work
 
 Prouff, Strullu, Benadjila, Cagli, and Dumas (2018), "Study of Deep Learning Techniques for
@@ -521,6 +580,16 @@ Offline Generalizers" ([arXiv:2010.08127](https://arxiv.org/abs/2010.08127), ICL
 training on a fixed dataset that is reused across steps with training on fresh samples at every step,
 and reports that the two stay close until the fixed-data run stops improving. The framing behind our
 fixed-versus-fresh comparison in Part 4.
+
+Ziyin, Hartwig, and Ueda (2020), "Neural Networks Fail to Learn Periodic Functions and How to Fix It"
+([arXiv:2006.08195](https://arxiv.org/abs/2006.08195), NeurIPS 2020). Argues that networks with ordinary
+activations such as ReLU handle periodic patterns poorly and proposes a periodic activation. Part of the
+motivation for trying a sine first layer in Part 5; their results are about extrapolation, not masking.
+
+Chizat, Oyallon, and Bach (2019), "On Lazy Training in Differentiable Programming"
+([arXiv:1812.07956](https://arxiv.org/abs/1812.07956), NeurIPS 2019). Describes a "lazy" regime, reached
+for example with a large output scale, in which a network trains while its internal features barely
+change. Used to interpret why a larger starting scale slows XOR's flat start in Part 5.
 
 ## Glossary
 
@@ -619,10 +688,20 @@ data. It can never exceed the mutual information, so the gap between the two sho
 model missed.
 [More](https://eprint.iacr.org/2019/132)
 
+### ReLU
+The most common activation function in neural networks: it outputs the input if positive, and 0
+otherwise. A ReLU network builds curves out of straight pieces, so oscillating patterns take many pieces.
+[More](https://en.wikipedia.org/wiki/Rectifier_(neural_networks))
+
 ### Seed
 The number that fixes a run's random choices (starting weights, data order) so it can be
 repeated exactly. Running several seeds shows how much results vary by chance.
 [More](https://en.wikipedia.org/wiki/Random_seed)
+
+### SGD
+Stochastic gradient descent: the basic training method, which steps against a noisy gradient estimated
+from each batch. "Momentum" SGD smooths those steps over time. Adam is a refinement of it.
+[More](https://en.wikipedia.org/wiki/Stochastic_gradient_descent)
 
 ### Shares
 The random-looking pieces a masked secret is split into. Each share alone is uniformly

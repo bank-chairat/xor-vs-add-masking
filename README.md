@@ -72,7 +72,9 @@ and common model of how much power a chip uses when it handles a value.
 
 ### Masking
 A defence that never handles a secret directly: the secret is split into random
-[shares](#shares), and the device only ever works on the shares.
+[shares](#shares), and the device only ever works on the shares. An attacker then has to
+combine the leakage of all shares, which takes far more measurements when there is noise.
+[More (research paper)](https://cyber.gouv.fr/sites/default/files/IMG/pdf/Masking_against_Side-Channel_Attacks_prouff-rivain.pdf)
 
 ### MLP
 Multilayer perceptron: a basic neural network made of stacked fully connected layers. All

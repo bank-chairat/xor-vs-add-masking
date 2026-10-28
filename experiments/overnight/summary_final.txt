@@ -1,0 +1,85 @@
+== Experiment 2 (A-02): excess CE (bits), 1,000,000 training traces, 4000 steps ==
+  sigma=0.5 xor256: n= 2 mean=0.0266 sd=0.0061 min=0.0223 max=0.0309
+  sigma=0.5 add256: n= 2 mean=0.0083 sd=0.0001 min=0.0082 max=0.0084
+  sigma=0.5 add251: n= 2 mean=0.0091 sd=0.0001 min=0.0090 max=0.0092
+  sigma=1.0 xor256: n= 2 mean=0.0024 sd=0.0000 min=0.0024 max=0.0025
+  sigma=1.0 add256: n= 2 mean=0.0039 sd=0.0003 min=0.0037 max=0.0041
+  sigma=1.0 add251: n= 2 mean=0.0033 sd=0.0005 min=0.0030 max=0.0036
+
+== Experiments 3 to 7: final-step excess CE (bits) by setting ==
+  A-03 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=3: n= 6 mean=0.0085 sd=0.0004 min=0.0079 max=0.0090
+  A-03 add sigma=0.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 6 mean=0.0083 sd=0.0004 min=0.0076 max=0.0088
+  A-03 add sigma=0.5 n_train=1000000 steps=64000 lr=0.002 width=256 depth=3: n= 3 mean=0.0160 sd=0.0016 min=0.0144 max=0.0176
+  A-03 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=3: n= 6 mean=0.0260 sd=0.0053 min=0.0212 max=0.0342
+  A-03 xor sigma=0.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 6 mean=0.0086 sd=0.0008 min=0.0074 max=0.0097
+  A-03 xor sigma=0.5 n_train=1000000 steps=64000 lr=0.002 width=256 depth=3: n= 3 mean=0.0143 sd=0.0013 min=0.0130 max=0.0156
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.0005 width=256 depth=3: n= 4 mean=0.0117 sd=0.0006 min=0.0109 max=0.0121
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.001 width=256 depth=3: n= 4 mean=0.0093 sd=0.0004 min=0.0089 max=0.0098
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.004 width=256 depth=3: n= 4 mean=0.0087 sd=0.0002 min=0.0086 max=0.0090
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.008 width=256 depth=3: n= 4 mean=0.0104 sd=0.0022 min=0.0092 max=0.0138
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.0005 width=256 depth=3: n= 4 mean=0.0389 sd=0.0012 min=0.0377 max=0.0404
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.001 width=256 depth=3: n= 4 mean=0.0312 sd=0.0075 min=0.0229 max=0.0384
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.004 width=256 depth=3: n= 4 mean=0.0315 sd=0.0050 min=0.0269 max=0.0384
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.008 width=256 depth=3: n= 4 mean=0.0360 sd=0.0024 min=0.0338 max=0.0388
+  A-05 add sigma=0.25 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0298 sd=0.0006 min=0.0293 max=0.0304
+  A-05 add sigma=0.75 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0061 sd=0.0004 min=0.0056 max=0.0064
+  A-05 add sigma=1.0 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0062 sd=0.0004 min=0.0059 max=0.0066
+  A-05 add sigma=1.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0070 sd=0.0006 min=0.0066 max=0.0077
+  A-05 xor sigma=0.25 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0133 sd=0.0015 min=0.0120 max=0.0150
+  A-05 xor sigma=0.75 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0056 sd=0.0006 min=0.0052 max=0.0063
+  A-05 xor sigma=1.0 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0052 sd=0.0006 min=0.0047 max=0.0059
+  A-05 xor sigma=1.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0040 sd=0.0006 min=0.0035 max=0.0047
+  A-06 add sigma=0.5 n_train=50000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=1.5984 sd=0.2267 min=1.3367 max=1.7300
+  A-06 add sigma=0.5 n_train=200000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0892 sd=0.0144 min=0.0726 max=0.0982
+  A-06 xor sigma=0.5 n_train=50000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=1.3989 sd=0.1976 min=1.1710 max=1.5238
+  A-06 xor sigma=0.5 n_train=200000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.1011 sd=0.0080 min=0.0919 max=0.1066
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=2: n= 3 mean=0.0155 sd=0.0026 min=0.0131 max=0.0183
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=5: n= 3 mean=0.0070 sd=0.0000 min=0.0069 max=0.0070
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=512 depth=3: n= 3 mean=0.0081 sd=0.0002 min=0.0080 max=0.0083
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=64 depth=3: n= 3 mean=0.0118 sd=0.0003 min=0.0116 max=0.0121
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=2: n= 3 mean=0.0439 sd=0.0004 min=0.0436 max=0.0443
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=5: n= 3 mean=0.0101 sd=0.0020 min=0.0085 max=0.0124
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=512 depth=3: n= 3 mean=0.0276 sd=0.0091 min=0.0171 max=0.0332
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=64 depth=3: n= 3 mean=0.0374 sd=0.0036 min=0.0348 max=0.0415
+
+== Same settings, best-validation checkpoint instead of final step ==
+  A-03 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=3: n= 6 mean=0.0085 sd=0.0004 min=0.0079 max=0.0090
+  A-03 add sigma=0.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 6 mean=0.0083 sd=0.0004 min=0.0076 max=0.0088
+  A-03 add sigma=0.5 n_train=1000000 steps=64000 lr=0.002 width=256 depth=3: n= 3 mean=0.0117 sd=0.0001 min=0.0116 max=0.0117
+  A-03 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=3: n= 6 mean=0.0260 sd=0.0053 min=0.0212 max=0.0342
+  A-03 xor sigma=0.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 6 mean=0.0087 sd=0.0007 min=0.0076 max=0.0097
+  A-03 xor sigma=0.5 n_train=1000000 steps=64000 lr=0.002 width=256 depth=3: n= 3 mean=0.0124 sd=0.0003 min=0.0121 max=0.0127
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.0005 width=256 depth=3: n= 4 mean=0.0117 sd=0.0006 min=0.0109 max=0.0121
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.001 width=256 depth=3: n= 4 mean=0.0093 sd=0.0004 min=0.0089 max=0.0098
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.004 width=256 depth=3: n= 4 mean=0.0087 sd=0.0002 min=0.0086 max=0.0090
+  A-04 add sigma=0.5 n_train=1000000 steps=4000 lr=0.008 width=256 depth=3: n= 4 mean=0.0104 sd=0.0022 min=0.0092 max=0.0138
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.0005 width=256 depth=3: n= 4 mean=0.0389 sd=0.0012 min=0.0377 max=0.0404
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.001 width=256 depth=3: n= 4 mean=0.0312 sd=0.0075 min=0.0229 max=0.0384
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.004 width=256 depth=3: n= 4 mean=0.0315 sd=0.0050 min=0.0269 max=0.0384
+  A-04 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.008 width=256 depth=3: n= 4 mean=0.0360 sd=0.0024 min=0.0338 max=0.0388
+  A-05 add sigma=0.25 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0297 sd=0.0006 min=0.0293 max=0.0304
+  A-05 add sigma=0.75 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0063 sd=0.0004 min=0.0058 max=0.0066
+  A-05 add sigma=1.0 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0058 sd=0.0001 min=0.0057 max=0.0059
+  A-05 add sigma=1.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0046 sd=0.0004 min=0.0041 max=0.0049
+  A-05 xor sigma=0.25 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0133 sd=0.0015 min=0.0120 max=0.0150
+  A-05 xor sigma=0.75 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0054 sd=0.0007 min=0.0049 max=0.0062
+  A-05 xor sigma=1.0 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0044 sd=0.0002 min=0.0043 max=0.0047
+  A-05 xor sigma=1.5 n_train=1000000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0031 sd=0.0002 min=0.0028 max=0.0032
+  A-06 add sigma=0.5 n_train=50000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0687 sd=0.0005 min=0.0681 max=0.0690
+  A-06 add sigma=0.5 n_train=200000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0275 sd=0.0009 min=0.0268 max=0.0285
+  A-06 xor sigma=0.5 n_train=50000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0959 sd=0.0007 min=0.0951 max=0.0965
+  A-06 xor sigma=0.5 n_train=200000 steps=16000 lr=0.002 width=256 depth=3: n= 3 mean=0.0493 sd=0.0036 min=0.0451 max=0.0517
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=2: n= 3 mean=0.0155 sd=0.0026 min=0.0131 max=0.0183
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=5: n= 3 mean=0.0070 sd=0.0000 min=0.0069 max=0.0070
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=512 depth=3: n= 3 mean=0.0081 sd=0.0002 min=0.0080 max=0.0083
+  A-07 add sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=64 depth=3: n= 3 mean=0.0118 sd=0.0003 min=0.0116 max=0.0121
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=2: n= 3 mean=0.0439 sd=0.0004 min=0.0436 max=0.0443
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=256 depth=5: n= 3 mean=0.0101 sd=0.0020 min=0.0085 max=0.0124
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=512 depth=3: n= 3 mean=0.0276 sd=0.0091 min=0.0171 max=0.0332
+  A-07 xor sigma=0.5 n_train=1000000 steps=4000 lr=0.002 width=64 depth=3: n= 3 mean=0.0374 sd=0.0036 min=0.0348 max=0.0415
+
+== A-08 (noiseless exact table): final step, per masking ==
+  xor: excess CE n=20 mean=0.0027 sd=0.0032 min=0.0003 max=0.0122
+  xor: parity prob n=20 mean=0.9992 sd=0.0012 min=0.9960 max=0.9999
+  add: excess CE n=20 mean=0.0027 sd=0.0020 min=0.0008 max=0.0084
+  add: parity prob n=20 mean=0.5132 sd=0.0004 min=0.5123 max=0.5138

@@ -99,7 +99,7 @@ about *learning*. Next: do trained networks actually reach these limits?
 
 ## 2. Do trained networks reach the ceiling?
 
-**Question.** Part 1 says XOR leaks more. So does a trained network actually get close to
+**Question.** [Part 1](#1-is-there-less-information) says XOR leaks more. So does a trained network actually get close to
 that limit, and does it get as close for XOR as for addition?
 
 **Where the idea came from.** Our own follow-up to Part 1. To measure how much a network has

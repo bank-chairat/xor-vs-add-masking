@@ -611,6 +611,52 @@ masking stops protecting the secret's weight at all.
 **What it raised.** Does this connect to our other project, where a different network is also slow at
 one part of its task? And how sure are we of all the numbers above?
 
+## 7. Link to the adder project, checks, and open questions
+
+**A different cause than the adder's delay (A-43, 4 seeds).** Our companion project studies a network
+learning binary addition, where some output bits are also learned very late. There, adding
+[LayerNorm](#layernorm) to the hidden layers removes the delay. If XOR's flat start had the same cause,
+LayerNorm should help here too. It doesn't: the flat start gets *longer* (2,050 steps vs 1,250). So the two
+delays have different causes. The adder's comes from its other outputs taking over shared layers, which
+LayerNorm prevents, while XOR's comes from label noise hiding a parity signal that LayerNorm doesn't supply.
+Why LayerNorm makes XOR slower was not tested. Code: [a43_layernorm.py](experiments/a43_layernorm.py),
+results in [a43/](experiments/a43).
+
+**How we checked the work.**
+- **Predictions first.** Before each experiment we wrote down what we expected and what would change our
+  mind, then marked each prediction as held or missed. Several were wrong, and the README says so where
+  they were (for example the "sudden drop" in Part 3, the half-frequency input in Part 3, and the flat
+  start under weighted bits in Part 6). The full record is in [PROGRESS.md](PROGRESS.md).
+- **Every number recomputed.** [a36_verify.py](experiments/a36_verify.py) and
+  [a44_verify.py](experiments/a44_verify.py) rerun the scoring scripts of Parts 5–7 on the raw result files
+  and compare them with the saved scores. Everything matched apart from small rounding fixes, and each
+  part's summary script rebuilds that part's tables and figures from the saved results.
+- **Reruns are identical.** Repeating a run with the same seed reproduces it exactly on the same machine and
+  library versions: Experiment 11 reproduced Experiment 9 to within 0.000005 bits, and a sine-layer run
+  rerun from scratch gave the same curve in all 28 evaluations ([repro_a34/](experiments/repro_a34)). Across
+  different machines or library versions, small numerical differences are possible.
+
+**Mistakes we caught and kept on record.**
+- One planned experiment (A-41, the sine layer at σ = 0.75) was stopped after its first run: at that noise
+  level there is almost no parity information to learn (0.0006 bits), which we should have checked first.
+  It was replaced by the σ = 0.6 test in Part 5, and the aborted run is kept in
+  [a41_aborted_sig0.75/](experiments/a41_aborted_sig0.75).
+- The first transition-leak calculation (Part 6) used `s - m` for the second addition share instead of the
+  project's `s + m`. Rerunning with `s + m` gave the same values within sampling error.
+- One spread in the notebook's Part 2 table was mistyped (0.0022 instead of 0.0016); it is corrected in place.
+
+**Limits.** Everything is simulated, mostly with one leakage model, two shares and two readings per trace.
+The networks are small MLPs trained on CPU, usually with 4 seeds per setting. Nothing was measured on a real
+device, and the results say nothing about real attacks on real hardware.
+
+**Open questions.**
+- Why the ReLU network's parity signal is weak in the first place: spectral bias, a plateau in training, or
+  something else. Part 5 shows a sine layer avoids it, not why ReLU suffers.
+- Why LayerNorm and both smaller and larger starting scales *lengthen* XOR's flat start.
+- What causes the small gap that remains under the transition leak even with clean labels (0.006–0.014 bits).
+- What explains the 0.150 bits of XOR's noiseless 1.150 beyond the parity bit.
+- Whether any of this holds for real traces, more than two shares, or other network types such as CNNs.
+  
 ## Related work
 
 Prouff, Strullu, Benadjila, Cagli, and Dumas (2018), "Study of Deep Learning Techniques for
@@ -759,6 +805,11 @@ its contents change from one value to the other.
 The number of 1 bits in a binary number. Example: `10110000` has Hamming weight 3. A simple
 and common model of how much power a chip uses when it handles a value.
 [More](https://en.wikipedia.org/wiki/Hamming_weight)
+
+### LayerNorm
+Layer normalization: rescales the values in each hidden layer to a standard size for every example. It
+often makes training faster and more stable.
+[More](https://arxiv.org/abs/1607.06450)
 
 ### Learning rate
 How big a step the optimizer takes at each training update. Too small learns slowly; too large

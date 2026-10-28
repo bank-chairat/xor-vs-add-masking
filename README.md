@@ -34,7 +34,7 @@ files answer it, what we found, and what it led to next.
 - [7. Link to the adder project, checks, and open questions](#7-link-to-the-adder-project-checks-and-open-questions)
 - [Related work](#related-work) and [Glossary](#glossary)
 - Full lab notebook: [PROGRESS.md](PROGRESS.md)
-- 
+  
 **Scope, up front:** everything here is simulated. The leakage model is mostly one simple
 model (Hamming weight plus Gaussian noise), the networks are small MLPs, and nothing is
 measured on a real device. Results are claims about this model only.

@@ -72,11 +72,11 @@ python3 ceiling.py        # ~3 s, prints the checks and the table below
 
 **Result** (bits of information about the 8-bit secret):
 
-| Noise σ | XOR | Addition mod 256 | Addition mod 251 |
-|---|---|---|---|
-| none | 1.150 | 0.275 | 0.260 |
-| 0.5 | 0.144 | 0.108 | 0.105 |
-| 1.0 | 0.047 | 0.037 | 0.031 |
+| Noise σ | XOR | Addition mod 256 |
+|---|---|---|
+| none | 1.150 | 0.275 |
+| 0.5 | 0.144 | 0.108 |
+| 1.0 | 0.047 | 0.037 |
 
 Checks: each share alone gives 0 bits (to 1e-15), the noise density integrates to 1.00000, and
 at small noise (σ = 0.15) the grid answer matches the exact noise-free value (1.1432 vs 1.1499 for XOR).
@@ -91,6 +91,159 @@ and read it there afterwards.
 **What it raised.** If XOR has more information, then any difficulty a network has with XOR is
 about *learning*. Next: do trained networks actually reach these limits?
 
+## 2. Do trained networks reach the ceiling?
+
+**Question.** Chapter 1 says XOR leaks more. So does a trained network actually get close to
+that limit, and does it get as close for XOR as for addition?
+
+**Where the idea came from.** Our own follow-up to Chapter 1. To measure how much a network has
+extracted we use [perceived information](#perceived-information), as in
+[Masure, Dumas & Prouff 2019](https://eprint.iacr.org/2019/439), and we rely on
+[Bronchain et al. 2019](https://eprint.iacr.org/2019/132) for why it can never exceed the true
+information. The network (an [MLP](#mlp)) and optimizer ([Adam](#adam)) were default choices,
+not taken from a paper.
+
+**How we measure the gap.** The network sees the two noisy readings and outputs a probability
+for each of the 256 secrets. Its [cross entropy](#cross-entropy) on fresh test traces gives its
+perceived information (PI = 8 bits − cross entropy). PI can't exceed the ceiling, so the
+**distance from the ceiling** (ceiling − PI, in bits) shows how much information the network
+left on the table. Lower is better, and 0 would mean a perfect attacker.
+
+**Files.**
+- [train_mlp.py](experiments/train_mlp.py) – simulates traces, trains the network, measures PI.
+  Experiment 2: 60 runs over noise levels and training-set sizes. Results in
+  [results_mlp.json](experiments/results_mlp.json).
+- [a03_budget.py](experiments/a03_budget.py) and [overnight_queue.py](experiments/overnight_queue.py) –
+  Experiment 3 (training length, 6 [seeds](#seed) per masking) and Experiments 4–8 (learning rate,
+  noise, data size, network size, noise-free data). Results in [a03/](experiments/a03) and
+  [overnight/](experiments/overnight). The queue is resumable: it skips runs already in its result files.
+- [summarize.py](experiments/summarize.py) – rebuilds every number in this chapter from the saved results.
+- [plot_ch2.py](experiments/plot_ch2.py) – draws the figure below.
+
+```
+cd experiments
+python3 summarize.py      # seconds: all tables in this chapter, from saved results
+python3 plot_ch2.py       # seconds: the figure below
+# to rerun the training itself (CPU, slow):
+python3 train_mlp.py results_mlp.json 0.5,1.0 2000,10000,50000,250000,1000000 2 4000   # ~1 hour
+python3 a03_budget.py a03/stage1_4k 4000 0,1,2,3,4,5                                   # ~12 min
+QUEUE_LIMIT_S=6300 python3 overnight_queue.py overnight                                # many hours
+```
+
+**Result 1 – networks get close, but XOR less so (Experiment 2).** With 1,000,000 training traces
+the networks reach 80–95% of the ceiling, and none exceed it, which is the check we wanted. With
+only 2,000–10,000 traces every network [overfits](#overfitting). At σ = 0.5, though, XOR networks
+are about three times further from their ceiling than addition networks (0.022–0.031 vs
+0.008 bits, 2 seeds).
+
+**Result 2 – the gap is about training time (Experiment 3, σ = 0.5, 6 seeds).**
+
+![Distance from the ceiling vs. training steps](experiments/results/ch2_gap_vs_steps.png)
+
+| Training steps | XOR | Addition |
+|---|---|---|
+| 4,000 | 0.0260 | 0.0085 |
+| 16,000 | 0.0086 | 0.0083 |
+| 64,000 (3 seeds) | 0.0143 | 0.0160 |
+
+At 4,000 steps every addition seed beats every XOR seed, and XOR's seeds vary about 13 times more.
+At 16,000 steps the gap is gone: addition was already at its level by 4,000 steps, while XOR
+needed four times longer to get there. At 64,000 steps both got *worse*, a puzzle we come back
+to in Chapter 4.
+
+**Result 3 – what the 4,000-step gap depends on (Experiments 4–8, 3–4 seeds each).**
+- [Learning rate](#learning-rate): no value from 0.0005 to 0.008 closes it.
+- Network shape: a deeper network closes most of it (depth 5: 0.0101 vs 0.0070), a shallower one
+  widens it (depth 2: 0.0439 vs 0.0155), and width alone does not help.
+- Training data: with less data XOR falls further behind (200,000 traces, best checkpoint: 0.049 vs 0.028).
+- Noise: at 16,000 steps XOR is never clearly further from its ceiling than addition (about equal at
+  σ = 0.5 and 0.75), and at low noise (σ = 0.25) it is clearly closer (0.013 vs 0.030).
+- Noise-free data: trained on the exact probabilities, all 20 XOR networks learn the parity
+  clue from Chapter 1 almost perfectly (0.999 of their probability on answers with the right parity).
+
+**What it answered.** XOR isn't harder because the network can't reach its limit. Given enough
+steps, depth or data, it gets there. XOR simply needs *more training* to get as close as addition.
+
+**What it raised.** Why does XOR need more training? Experiment 8 hints at an answer: the parity
+clue. Next we look at where exactly XOR's networks fall short, and when during training they
+learn the parity.
+
+## 2. Do trained networks reach the ceiling?
+
+**Question.** Chapter 1 says XOR leaks more. So does a trained network actually get close to
+that limit, and does it get as close for XOR as for addition?
+
+**Where the idea came from.** Our own follow-up to Chapter 1. To measure how much a network has
+extracted we use [perceived information](#perceived-information), as in
+[Masure, Dumas & Prouff 2019](https://eprint.iacr.org/2019/439), and we rely on
+[Bronchain et al. 2019](https://eprint.iacr.org/2019/132) for why it can never exceed the true
+information. The network (an [MLP](#mlp)) and optimizer ([Adam](#adam)) were default choices,
+not taken from a paper.
+
+**How we measure the gap.** The network sees the two noisy readings and outputs a probability
+for each of the 256 secrets. Its [cross entropy](#cross-entropy) on fresh test traces gives its
+perceived information (PI = 8 bits − cross entropy). PI can't exceed the ceiling, so the
+**distance from the ceiling** (ceiling − PI, in bits) shows how much information the network
+left on the table. Lower is better, and 0 would mean a perfect attacker.
+
+**Files.**
+- [train_mlp.py](experiments/train_mlp.py) – simulates traces, trains the network, measures PI.
+  Experiment 2: 60 runs over noise levels and training-set sizes. Results in
+  [results_mlp.json](experiments/results_mlp.json).
+- [a03_budget.py](experiments/a03_budget.py) and [overnight_queue.py](experiments/overnight_queue.py) –
+  Experiment 3 (training length, 6 [seeds](#seed) per masking) and Experiments 4–8 (learning rate,
+  noise, data size, network size, noise-free data). Results in [a03/](experiments/a03) and
+  [overnight/](experiments/overnight). The queue is resumable: it skips runs already in its result files.
+- [summarize.py](experiments/summarize.py) – rebuilds every number in this chapter from the saved results.
+- [plot_ch2.py](experiments/plot_ch2.py) – draws the figure below.
+
+```
+cd experiments
+python3 summarize.py      # seconds: all tables in this chapter, from saved results
+python3 plot_ch2.py       # seconds: the figure below
+# to rerun the training itself (CPU, slow):
+python3 train_mlp.py results_mlp.json 0.5,1.0 2000,10000,50000,250000,1000000 2 4000   # ~1 hour
+python3 a03_budget.py a03/stage1_4k 4000 0,1,2,3,4,5                                   # ~12 min
+QUEUE_LIMIT_S=6300 python3 overnight_queue.py overnight                                # many hours
+```
+
+**Result 1 – networks get close, but XOR less so (Experiment 2).** With 1,000,000 training traces
+the networks reach 80–95% of the ceiling, and none exceed it, which is the check we wanted. With
+only 2,000–10,000 traces every network [overfits](#overfitting). At σ = 0.5, though, XOR networks
+are about three times further from their ceiling than addition networks (0.022–0.031 vs
+0.008 bits, 2 seeds).
+
+**Result 2 – the gap is about training time (Experiment 3, σ = 0.5, 6 seeds).**
+
+![Distance from the ceiling vs. training steps](experiments/results/ch2_gap_vs_steps.png)
+
+| Training steps | XOR | Addition |
+|---|---|---|
+| 4,000 | 0.0260 | 0.0085 |
+| 16,000 | 0.0086 | 0.0083 |
+| 64,000 (3 seeds) | 0.0143 | 0.0160 |
+
+At 4,000 steps every addition seed beats every XOR seed, and XOR's seeds vary about 13 times more.
+At 16,000 steps the gap is gone: addition was already at its level by 4,000 steps, while XOR
+needed four times longer to get there. At 64,000 steps both got *worse*, a puzzle we come back
+to in Chapter 4.
+
+**Result 3 – what the 4,000-step gap depends on (Experiments 4–8, 3–4 seeds each).**
+- [Learning rate](#learning-rate): no value from 0.0005 to 0.008 closes it.
+- Network shape: a deeper network closes most of it (depth 5: 0.0101 vs 0.0070), a shallower one
+  widens it (depth 2: 0.0439 vs 0.0155), and width alone does not help.
+- Training data: with less data XOR falls further behind (200,000 traces, best checkpoint: 0.049 vs 0.028).
+- Noise: at 16,000 steps XOR is never clearly further from its ceiling than addition (about equal at
+  σ = 0.5 and 0.75), and at low noise (σ = 0.25) it is clearly closer (0.013 vs 0.030).
+- Noise-free data: trained on the exact probabilities, all 20 XOR networks learn the parity
+  clue from Chapter 1 almost perfectly (0.999 of their probability on answers with the right parity).
+
+**What it answered.** XOR isn't harder because the network can't reach its limit. Given enough
+steps, depth or data, it gets there. XOR simply needs *more training* to get as close as addition.
+
+**What it raised.** Why does XOR need more training? Experiment 8 hints at an answer: the parity
+clue. Next we look at where exactly XOR's networks fall short, and when during training they
+learn the parity.
 
 ## Related work
 
@@ -131,6 +284,19 @@ masking carries less mutual information than Boolean masking, while showing that
 arithmetic masking can still be easier to attack with unlimited traces. A reminder that more
 information does not by itself mean an easier attack; this project measures information and
 learning, not attack success.
+
+Masure, Dumas, and Prouff (2019), "A Comprehensive Study of Deep Learning for Side-Channel
+Analysis" ([ePrint 2019/439](https://eprint.iacr.org/2019/439)). Argues that training a network by
+minimizing its negative log-likelihood is equivalent, in the limit, to maximizing a lower bound on
+mutual information, and links training to perceived information. Cited as the source for using
+perceived information to measure how much a trained network extracts.
+
+Bronchain, Hendrickx, Massart, Olshevsky, and Standaert (2019), "Leakage Certification Revisited:
+Bounding Model Errors in Side-Channel Security Evaluations" ([ePrint 2019/132](https://eprint.iacr.org/2019/132),
+CRYPTO 2019). Defines perceived information as the information an estimated model can extract and
+shows it cannot exceed the true mutual information when the secret is uniform. Cited for why our
+networks can never beat the ceiling from Chapter 1.
+
 ## Glossary
 
 Short definitions of the technical terms used above. Each links to a longer explanation.
@@ -196,3 +362,34 @@ is: larger σ means noisier readings and less information.
 Exclusive or: a bitwise operation that outputs 1 where two bits differ. Example:
 `1100 XOR 1010 = 0110`. XOR-ing with a random mask hides a value completely.
 [More](https://en.wikipedia.org/wiki/Exclusive_or)
+
+### Adam
+A popular training method (optimizer) that adjusts how big a step each weight takes, based on
+the recent size of that weight's gradients.
+[More](https://arxiv.org/abs/1412.6980)
+
+### Cross entropy
+How surprised a model is, on average, by the true answer, measured in bits. Lower is better.
+A model that guesses uniformly among 256 secrets has a cross entropy of 8 bits.
+[More](https://en.wikipedia.org/wiki/Cross-entropy)
+
+### Learning rate
+How big a step the optimizer takes at each training update. Too small learns slowly; too large
+is unstable.
+[More](https://en.wikipedia.org/wiki/Learning_rate)
+
+### Overfitting
+When a model memorizes its training data instead of learning the general rule, so it does
+worse on new data.
+[More](https://en.wikipedia.org/wiki/Overfitting)
+
+### Perceived information
+How many bits a trained model actually extracts: 8 bits minus its cross entropy on fresh test
+data. It can never exceed the mutual information, so the gap between the two shows what the
+model missed.
+[More](https://eprint.iacr.org/2019/132)
+
+### Seed
+The number that fixes a run's random choices (starting weights, data order) so it can be
+repeated exactly. Running several seeds shows how much results vary by chance.
+[More](https://en.wikipedia.org/wiki/Random_seed)

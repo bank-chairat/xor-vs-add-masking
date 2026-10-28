@@ -1,0 +1,4 @@
+A-22-lr2e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed0 A=0.0249 B=0.0077 C=0.0060 total=0.0387 (1407s)
+A-22-lr2e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed1 A=0.0251 B=0.0068 C=0.0071 total=0.0390 (1309s)
+A-22-lr2e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed2 A=0.0183 B=0.0066 C=0.0063 total=0.0312 (1173s)
+A-22-lr2e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed3 A=0.0247 B=0.0079 C=0.0069 total=0.0395 (1405s)

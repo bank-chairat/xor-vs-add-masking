@@ -1,0 +1,8 @@
+A-19-lr1e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed0 A=0.0166 B=0.0053 C=0.0075 total=0.0294 (750s)
+A-19-lr1e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed1 A=0.0296 B=0.0075 C=0.0061 total=0.0431 (624s)
+A-19-lr1e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed2 A=0.0223 B=0.0063 C=0.0053 total=0.0340 (567s)
+A-19-lr1e-3_bs512-xor-sig0.5-s4000-sched1000000000-fixed-seed3 A=0.0271 B=0.0066 C=0.0062 total=0.0400 (841s)
+A-19-lr1e-3_bs256-xor-sig0.5-s4000-sched1000000000-fixed-seed0 A=0.0347 B=0.0104 C=0.0052 total=0.0502 (802s)
+A-19-lr1e-3_bs256-xor-sig0.5-s4000-sched1000000000-fixed-seed1 A=0.0288 B=0.0134 C=0.0066 total=0.0489 (661s)
+A-19-lr1e-3_bs256-xor-sig0.5-s4000-sched1000000000-fixed-seed2 A=0.0266 B=0.0109 C=0.0055 total=0.0430 (706s)
+A-19-lr1e-3_bs256-xor-sig0.5-s4000-sched1000000000-fixed-seed3 A=0.0265 B=0.0088 C=0.0068 total=0.0422 (692s)

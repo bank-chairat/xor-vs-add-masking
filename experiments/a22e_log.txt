@@ -1,0 +1,2 @@
+A-22-lr5e-4_bs4096-xor-sig0.5-s4000-sched1000000000-fixed-seed2 A=0.0075 B=0.0034 C=0.0074 total=0.0183 (642s)
+A-22-lr5e-4_bs4096-xor-sig0.5-s4000-sched1000000000-fixed-seed3 A=0.0044 B=0.0025 C=0.0069 total=0.0138 (176s)

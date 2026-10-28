@@ -1,0 +1,5 @@
+A-27-lr2.5e-4_bs2048-xor-sig0.5-s4000-sched1000000000-fixed-seed0 A=0.0199 B=0.0055 C=0.0049 total=0.0303 (1127s)
+A-27-lr2.5e-4_bs2048-xor-sig0.5-s4000-sched1000000000-fixed-seed1 A=0.0203 B=0.0054 C=0.0049 total=0.0306 (1090s)
+A-27-lr2.5e-4_bs2048-xor-sig0.5-s4000-sched1000000000-fixed-seed2 A=0.0203 B=0.0067 C=0.0049 total=0.0318 (1245s)
+A-27-lr2.5e-4_bs2048-xor-sig0.5-s4000-sched1000000000-fixed-seed3 A=0.0203 B=0.0065 C=0.0051 total=0.0319 (1182s)
+A-27-lr2.5e-4_bs8192-xor-sig0.5-s3000-sched1000000000-fixed-seed0 A=0.0146 B=0.0044 C=0.0051 total=0.0241 (1416s)

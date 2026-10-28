@@ -45,12 +45,51 @@ uses the same kind of model for Boolean masking ([Cheng et al. 2021](https://arx
 fit some real 8-bit chips ([Brier et al. 2004](https://www.iacr.org/archive/ches2004/31560016/31560016.pdf)), but that does not make it a model of any
 particular device.
 
-**Reading status.** [Related work](#related-work) lists every paper we cite, with how much of
-it we actually read. A claim goes into this write-up only if it is our own measurement or is
-supported by a paper listed there.
-
 **Environment:** Python 3.13, CPU only, versions pinned in
 [requirements.txt](requirements.txt).
+
+## 1. Is there less information?
+
+**Question.** Before asking why a network struggles, check whether the information is even
+there. How many bits about `s` can *any* attacker get from one noisy reading of both shares?
+
+**Where the idea came from.** Our own starting question (the information-versus-learnability
+split). We later read [Masure et al. 2023](https://eprint.iacr.org/2022/863) and [Hiltenbrand et al. 2025](https://eprint.iacr.org/2025/604), which report the same direction for Boolean versus arithmetic masking, so this chapter
+re-derives a published result as a check on our code, not a new finding.
+
+**Files.**
+- [ceiling.py](ceiling.py) – computes the information ceiling ([mutual information](#mutual-information) between
+  the secret and the two noisy readings). For each secret it counts, over all 256 masks, the
+  exact table of (weight of share 1, weight of share 2); adds the Gaussian noise; and
+  integrates numerically on a grid (spacing σ/4).
+- [tests_sanity.py](tests_sanity.py) – checks every fact the write-up relies on, for example
+  that each share alone carries 0 bits, and the parity identity below.
+
+```
+python3 tests_sanity.py   # ~3 s, prints: all sanity checks passed
+python3 ceiling.py        # ~3 s, prints the checks and the table below
+```
+
+**Result** (bits of information about the 8-bit secret):
+
+| Noise σ | XOR | Addition mod 256 | Addition mod 251 |
+|---|---|---|---|
+| none | 1.150 | 0.275 | 0.260 |
+| 0.5 | 0.144 | 0.108 | 0.105 |
+| 1.0 | 0.047 | 0.037 | 0.031 |
+
+Checks: each share alone gives 0 bits (to 1e-15), the noise density integrates to 1.00000, and
+at small noise (σ = 0.15) the grid answer matches the exact noise-free value (1.1432 vs 1.1499 for XOR).
+
+**What it answered.** XOR leaks **more** than addition at every noise level tested, so in this
+model "XOR is harder because it reveals less" is ruled out. One bit of XOR's noiseless 1.150 has
+a simple explanation: under XOR, the [parity](#parity) of the two readings' sum equals the parity of the
+secret's own Hamming weight (checked for all 65,536 secret–mask pairs), and that parity splits
+the 256 secrets exactly in half. [Masure et al. 2023](https://eprint.iacr.org/2022/863) state the same identity; we found it first
+and read it there afterwards.
+
+**What it raised.** If XOR has more information, then any difficulty a network has with XOR is
+about *learning*. Next: do trained networks actually reach these limits?
 
 
 ## Related work

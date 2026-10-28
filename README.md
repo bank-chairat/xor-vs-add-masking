@@ -9,6 +9,7 @@ it led to next.
 model (Hamming weight plus Gaussian noise), the networks are small MLPs, and nothing is
 measured on a real device. Results are claims about this model only.
 
+
 ## Motivation and question
 
 **[Masking](#masking)** is a standard defence against [side-channel attacks](#side-channel-attack), where an attacker learns a
@@ -21,7 +22,7 @@ piece alone says anything about `s`. Two common ways to split a byte:
 
 Deep-learning attacks train a neural network to read the secret from the leakage of both
 shares together (for example, [MLPs](#mlp) and CNNs on a masked [AES](#aes) implementation in the ASCAD
-study, [Prouff et al. 2018](https://eprint.iacr.org/2018/053); see [literature.md](literature.md)).
+study, [Prouff et al. 2018](https://eprint.iacr.org/2018/053)).
 
 Suppose a network finds one masking harder to attack. There are two very different reasons
 that could be:
@@ -44,12 +45,29 @@ uses the same kind of model for Boolean masking ([Cheng et al. 2021](https://arx
 fit some real 8-bit chips ([Brier et al. 2004](https://www.iacr.org/archive/ches2004/31560016/31560016.pdf)), but that does not make it a model of any
 particular device.
 
-**Reading status.** [literature.md](literature.md) records every paper we used, with how much
-of it we actually read (many at abstract level only) and what it does and does not support.
-A claim goes into this write-up only if it is our own measurement or is supported there.
+**Reading status.** [Related work](#related-work) lists every paper we cite, with how much of
+it we actually read. A claim goes into this write-up only if it is our own measurement or is
+supported by a paper listed there.
 
 **Environment:** Python 3.13, CPU only, versions pinned in
 [requirements.txt](requirements.txt).
+
+
+## Related work
+
+Papers cited in this write-up. "Read" says how much of each we actually read.
+
+**Masking and its information**
+- [Prouff & Rivain 2013](https://www.iacr.org/archive/eurocrypt2013/78810139/78810139.pdf), "Masking against Side-Channel Attacks: A Formal Security Proof" (EUROCRYPT). Standard reference on why masking works. *Read: not read; cited for the definition only.*
+- [Masure, Meaux, Moos & Standaert 2023](https://eprint.iacr.org/2022/863), "Effective and Efficient Masking with Low Noise using Small-Mersenne-Prime Ciphers" (EUROCRYPT). Computes the same information ceiling for Boolean and arithmetic masking and states the parity identity; same direction as our Chapter 1. *Read: pages 1–10 of 32.*
+- [Hiltenbrand, Eynard & Poussier 2025](https://eprint.iacr.org/2025/604), "On the success rate of simple side-channel attacks against masking with unlimited attack traces" (CASCADE). Same measurement model as ours; notes that more information does not mean easier attacks in their setting. *Read: in full.*
+
+**Leakage model**
+- [Brier, Clavier & Olivier 2004](https://www.iacr.org/archive/ches2004/31560016/31560016.pdf), "Correlation Power Analysis with a Leakage Model" (CHES). Hamming-weight and Hamming-distance models fit some real 8-bit chips. *Read: summary of the full text.*
+- [Cheng, Liu, Guilley & Rioul 2021](https://arxiv.org/abs/2105.07436), "Attacking Masked Cryptographic Implementations: Information-Theoretic Bounds". Uses the same kind of model (Hamming weight plus Gaussian noise) for Boolean masking. *Read: summary of the full text.*
+
+**Deep-learning side-channel attacks**
+- [Prouff, Strullu, Benadjila, Cagli & Dumas 2018](https://eprint.iacr.org/2018/053), "Study of Deep Learning Techniques for Side-Channel Analysis and Introduction to ASCAD Database". MLPs and CNNs attacking a masked AES implementation. *Read: abstract.*
 
 ## Glossary
 

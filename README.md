@@ -496,7 +496,46 @@ still delay the parity escape 3.5 times compared with clean labels (3,650 vs 1,0
 
 ![Parity part of the gap during training, ReLU vs. sine first layer](experiments/results/part5_sine_layer.png)
 
-*Figure 4. Parity part of the
+*Figure 4. Parity part of the gap during training with ordinary one-hot labels, one line per seed. With
+a sine first layer whose starting weights reach the parity zigzag's frequency (dark blue), the parity part
+falls at once. The ReLU control with the same ×4 weights (dark red) stays stuck.*
+
+*Table 9. Flat start (median of 4 seeds) with ordinary one-hot labels.*
+
+| First layer | σ = 0.5 | σ = 0.6 (weaker signal) |
+|---|---|---|
+| ReLU, default | 1,250 | 2,200 |
+| ReLU, weights ×4 (control) | still flat at 2,500 in 3 of 4 seeds | |
+| sine, default weights | 750 | |
+| sine, weights ×4 | 100 | 200 |
+
+The sine layer works even though the labels are just as noisy, so the noise only matters because the
+ReLU network's parity signal starts out weak. Three checks make this solid:
+- **It's the oscillation, not the weight size.** The ReLU control with the same ×4 weights is *slower*, not faster.
+- **The frequency matters.** With default weights, the sine layer's frequencies start well below the parity
+  zigzag's and the flat start is only shortened (750 steps). With ×4 weights they reach it, and the flat
+  start is gone.
+- **It holds at a weaker signal.** At σ = 0.6, where the parity signal is about a third as strong, the ReLU
+  flat start roughly doubles while the sine network still escapes almost at once.
+
+One side effect: the sine network memorizes the fixed training set a little more. With a fresh batch at
+every step (A-42) that disappears, and its gap halves to about 0.010 bits.
+
+**Result 4: a larger starting scale makes it worse (A-28 to A-31c, A-35).** Unlike in our adder project,
+multiplying all starting weights by 2 left every seed still flat after 2,500 steps, and smaller scales
+were also slower (×0.5: 1,550 steps, ×0.25: 1,950). The default scale was the fastest we tried. The delay
+follows the network's overall output scale: making only the output layer 16 times larger gives a 4,200-step
+flat start. With that large output layer, the hidden layers' weights move only about 0.6 times as far in
+the first 1,000 steps (4 seeds). That matches the "lazy" training regime described by
+[Chizat et al. 2019](https://arxiv.org/abs/1812.07956), where a network's internal features barely change
+during training, and the parity clue needs a new feature.
+
+**What it answered.** The cause is now tested directly: label noise in the gradient causes the flat start
+(and one-hot labels delay it under SGD too), and it only bites because a ReLU network's parity signal is weak.
+A network that can oscillate from the start does not need to wait.
+
+**What it raised.** All of this used one leakage model, the Hamming weight of each share. Is the flat
+start a property of XOR masking in general, or of this particular way of leaking?
 
 ## Related work
 

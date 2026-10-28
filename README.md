@@ -51,8 +51,6 @@ A claim goes into this write-up only if it is our own measurement or is supporte
 **Environment:** Python 3.13, CPU only, versions pinned in
 [requirements.txt](requirements.txt).
 
----
-
 ## Glossary
 
 Short definitions of the technical terms used above. Each links to a longer explanation.

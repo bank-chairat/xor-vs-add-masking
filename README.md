@@ -310,7 +310,7 @@ samples). Two experiments (unequal noise on the two shares, and splitting Adam's
 averages) replicate suggestions from an outside discussion in our own code before we relied on them.
 
 **What we measure.** The **flat start** is the first training step at which the parity part of the gap
-has fallen below 90% of its starting value. Shorter is better.
+has fallen below 90% of its starting value. Shorter is better. We report the median over seeds; if a seed never gets there within the run, the median is over the seeds that did.
 
 **Files.**
 - [a12_runs.py](experiments/a12_runs.py) – Experiments 12–14: fresh data every step, a longer
@@ -353,7 +353,7 @@ learning rate 0.002, batch 1,024 unless stated.*
 
 | Setting | Flat start |
 |---|---|
-| batch 256 | 3,450 (one seed never) |
+| batch 256 | 3,400 (one of 4 seeds never got there) |
 | batch 1,024 | 1,250 |
 | batch 4,096 | 400 |
 | learning rate 0.0005 / 0.001 / 0.004 | 1,900 / 1,750 / 1,300 |
@@ -381,16 +381,27 @@ noise drowns it, so the network needs many steps or large batches to average the
 still a correlation-based case. The direct causal test is in [Part 5](#5-testing-the-cause-directly).
 
 **Result 3: a rule of thumb that predicts the flat start (Experiments 19, 22, 27).** No single
-combination of learning rate and batch size (such as their ratio) describes the flat start. But a
-formula fitted to earlier runs,
+combination of learning rate and batch size (such as their ratio) describes the flat start
+(Experiment 19). So we fitted a small formula instead:
 
 `ln T = 17.23 + 1.66 ln(lr) + 0.144 ln(lr)² − 0.772 ln(B)`
 
-(T the flat start, lr the learning rate, B the batch size, ln the natural log) predicted
-four new settings to within 17% before they were run (Table 6). It stops working above a batch of
-about 4,000: at batch 8,192 and 16,384 the flat start is 1.5–1.8 times longer than predicted. From
-Experiment 26 we estimate that the gradient's signal-to-noise ratio reaches 1 near a batch of 3,400, so a
-likely reading is that beyond that point extra batch no longer removes noise that matters.
+where T is the flat start, lr the learning rate, B the batch size and ln the natural log.
+
+*How we got it.* We wanted the simplest shape that fits what Experiments 15 and 16 showed: the flat start
+falls steadily with batch size, so ln T is a straight line in ln(B); and it first shortens, then lengthens
+again as the learning rate grows, so ln T gets a squared term in ln(lr). We fitted the four numbers by
+least squares to the median flat starts of the six settings in Experiments 15 and 16 only. Then we tested
+it twice without refitting: on the four settings of Experiment 19, which the fit had not seen (3 of 4 within
+30%), and on four brand-new settings whose predictions we wrote down *before* running them (Experiment 22,
+Table 6), where every prediction landed within 17% of the observed value.
+
+*Its limits.* Four numbers fitted to six settings is a thin fit, and the squared term was chosen after
+seeing Experiment 15, so this is a description of the flat start, not an explanation. It also stops
+working above a batch of about 4,000: at batch 8,192 and 16,384 the flat start is 1.5–1.8 times longer
+than predicted (Experiment 27). From Experiment 26 we estimate that the gradient's signal-to-noise ratio
+reaches 1 near a batch of 3,400, so a likely reading is that beyond that point extra batch no longer
+removes noise that matters.
 
 *Table 6. Flat start predicted by the formula before running, and observed (median of 4 seeds).*
 

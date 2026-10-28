@@ -9,8 +9,6 @@ it led to next.
 model (Hamming weight plus Gaussian noise), the networks are small MLPs, and nothing is
 measured on a real device. Results are claims about this model only.
 
----
-
 ## 0. Motivation and question
 
 **[Masking](#masking)** is a standard defence against [side-channel attacks](#side-channel-attack), where an attacker learns a

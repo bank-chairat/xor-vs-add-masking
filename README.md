@@ -537,6 +537,80 @@ A network that can oscillate from the start does not need to wait.
 **What it raised.** All of this used one leakage model, the Hamming weight of each share. Is the flat
 start a property of XOR masking in general, or of this particular way of leaking?
 
+## 6. Does it hold under other leakage models?
+
+**Question.** Everything so far assumed each share leaks exactly its Hamming weight. Real chips are messier.
+Are the flat start and XOR's extra information properties of XOR masking itself, or of that one
+model? We tried two other models:
+- **Weighted bits:** each bit of a share leaks with its own fixed strength (drawn between 0.5 and 1.5),
+  instead of all bits counting equally.
+- **Transition leak:** besides each share's Hamming weight, the device also leaks the
+  [Hamming distance](#hamming-distance) between the two shares, as can happen when one share overwrites
+  the other in a register. This is our own assumption about how the shares might meet in hardware.
+
+**Where the idea came from.** Our own question about how general the results are. The transition leak
+uses the Hamming-distance model of [Brier et al. 2004](https://www.iacr.org/archive/ches2004/31560016/31560016.pdf),
+applied to the two shares.
+
+**Files.**
+- [a32_weighted.py](experiments/a32_weighted.py) – weighted-bit leakage: the information ceiling, and
+  training with one-hot or exact-posterior labels. Info in [a32_info.txt](experiments/a32_info.txt);
+  scored by [a32_score.py](experiments/a32_score.py). Results in [a32/](experiments/a32).
+- [a37_hd_info.py](experiments/a37_hd_info.py) – transition leak: the information ceiling. Output in
+  [a37_info.txt](experiments/a37_info.txt).
+- [a38_transition.py](experiments/a38_transition.py) – training under the transition leak, with one-hot
+  labels (A-38) or exact-posterior labels (`LABELS=soft`, A-40). Scored by [a38_score.py](experiments/a38_score.py)
+  and [a40_score.py](experiments/a40_score.py). Results in [a38/](experiments/a38), [a40/](experiments/a40).
+- [summarize_part6.py](experiments/summarize_part6.py) – prints every number below and draws Figure 5.
+
+```
+cd experiments
+python3 summarize_part6.py                       # about 10 s, from saved results
+python3 a37_hd_info.py                           # recompute the transition-leak information
+KIND=xor SEEDS="0 1 2 3" python3 a38_transition.py a38   # rerun training (about 2-4 minutes per run)
+```
+
+![Information ceiling under three leakage models](experiments/results/part6_leakage_models.png)
+
+*Figure 5. Information about the 8-bit secret from one trace (σ = 0.5) under the three leakage models.
+Log scale. Values for the two new models are Monte Carlo estimates (standard error about 0.001 to 0.003).*
+
+**Result 1: with weighted bits, XOR's advantage and the flat start both disappear (A-32, 4 seeds).**
+The two maskings now leak almost the same (0.155 vs 0.148 bits; XOR still slightly more), and XOR networks
+start improving at once: their gap falls by 61–65% between steps 100 and 600 in every seed. We predicted a
+flat start and were wrong. With unequal bit weights, the secret is no longer hidden behind one weak parity
+clue, so there is nothing special to wait for. One thing carries over: one-hot labels still cost most of the
+remaining gap (0.0158 bits vs 0.0003 with exact-posterior labels after 4,000 steps).
+
+**Result 2: a transition leak breaks XOR masking (A-37).** For XOR, the Hamming distance between the two
+shares is the Hamming weight of `share1 XOR share2 = s`, the secret itself: the mask cancels out. So
+the attacker gets a direct reading of the secret's weight, and the information jumps about elevenfold.
+Addition also leaks much more (about sevenfold), but its increase is about half of XOR's (Table 10).
+
+*Table 10. Information about the secret (bits, σ = 0.5) with and without the transition leak. "Shares
+only" is the exact value from Part 1; the transition-leak values are Monte Carlo estimates.*
+
+| Masking | Shares only | Plus transition leak |
+|---|---|---|
+| XOR | 0.144 | 1.63 |
+| Addition | 0.108 | 0.81 |
+
+**Result 3: learning under the transition leak (A-38, A-40, 4 seeds).** With a direct reading of the
+secret's weight available, XOR networks have no flat start (in 3 of 4 seeds the gap halves
+between steps 100 and 600), and both maskings' networks capture 95–97% of the available information. We
+predicted XOR would end *closer* to its limit than addition, and it didn't: it ended further away (0.049
+vs 0.035 bits). Training on exact-posterior labels cut both gaps about fivefold and shrank XOR's extra gap
+from 0.014 to 0.004 bits, so most of it was label noise again.
+
+**What it answered.** The flat start and XOR's large information advantage belong to Hamming-weight
+leakage, where the secret hides behind a single weak parity clue. They are not universal properties of
+XOR masking. Label noise, though, costs the networks in every model we tried. And for security, the
+result that matters most: if a device ever leaks the transition between the two XOR shares, the
+masking stops protecting the secret's weight at all.
+
+**What it raised.** Does this connect to our other project, where a different network is also slow at
+one part of its task? And how sure are we of all the numbers above?
+
 ## Related work
 
 Prouff, Strullu, Benadjila, Cagli, and Dumas (2018), "Study of Deep Learning Techniques for
@@ -674,6 +748,12 @@ one small step at a time; with a small batch it is only a noisy estimate.
 Random error drawn from a bell-shaped (normal) distribution. Here it models the measurement
 noise added to each leaked Hamming weight.
 [More](https://en.wikipedia.org/wiki/Normal_distribution)
+
+### Hamming distance
+The number of bit positions in which two binary numbers differ. Example: `1100` and `1010` differ in
+2 positions. It equals the Hamming weight of their XOR, and it models the power a register uses when
+its contents change from one value to the other.
+[More](https://en.wikipedia.org/wiki/Hamming_distance)
 
 ### Hamming weight
 The number of 1 bits in a binary number. Example: `10110000` has Hamming weight 3. A simple

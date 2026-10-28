@@ -163,7 +163,8 @@ are about three times further from their ceiling than addition networks (0.022â€
 | 16,000 | 0.0086 | 0.0083 |
 | 64,000 (3 seeds) | 0.0143 | 0.0160 |
 
-At 4,000 steps every addition seed beats every XOR seed, and XOR's seeds vary about 13 times more.
+At 4,000 steps every addition run has a smaller gap than every XOR run (worst addition 0.0090,
+best XOR 0.0212), and XOR's runs vary about 13 times more.
 At 16,000 steps the gap is gone: addition was already at its level by 4,000 steps, while XOR
 needed four times longer to get there. At 64,000 steps both got *worse*, a puzzle we come back
 to in Part 4.
